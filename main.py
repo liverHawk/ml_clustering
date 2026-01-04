@@ -1,51 +1,11 @@
-import polars as pl
-import numpy as np
 import os
 import time
 from sklearn.cluster import KMeans
-from sklearn.datasets import make_blobs
 from itertools import product
 from typing import get_args
 
 from lib.cluster_index import ClusterIndex
-from lib.data import encode_categorical, EncodeMethod, NormalizeMethod, normalize
-from lib.general import create_centers_with_distances
-
-def make_sample_data():
-    n_samples = 1000
-    n_features = 80
-
-    centers = create_centers_with_distances(
-        n_clusters=5,
-        n_features=n_features,
-        distances=[0.1, 1, 1.1, 10, 100]
-    )
-
-    x, y = make_blobs(
-        n_samples=n_samples,
-        centers=centers,
-        random_state=42
-    )
-
-    regions = ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Fukuoka", "Sapporo"]
-    ranks = ["Gold", "Silver", "Bronze", "Platinum", "Diamond", "Master"]
-
-    rng = np.random.default_rng(42)
-    random_regions = rng.choice(regions, size=n_samples)
-    random_ranks = rng.choice(ranks, size=n_samples)
-
-    df = pl.DataFrame({
-        **{ f"feature_{i}": x[:, i] for i in range(n_features) },
-        "region": random_regions,
-        "rank": random_ranks,
-        "Label": y,
-    })
-    metadata = {
-        "n_samples": n_samples,
-        "n_features": n_features,
-        "n_clusters": len(centers),
-    }
-    return df, metadata
+from lib.data import encode_categorical, EncodeMethod, NormalizeMethod, normalize, make_sample_data
 
 
 def normal_clustering(df, with_label=True):

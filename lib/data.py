@@ -1,9 +1,48 @@
 import polars as pl
 from typing import Literal, List
-from itertools import product
+from sklearn.datasets import make_blobs
+import numpy as np
+
+from .general import create_centers_with_distances
 
 EncodeMethod = Literal['one-hot', 'label']
 NormalizeMethod = Literal['z-score', 'minmax', 'robust', 'none']
+
+def make_sample_data():
+    n_samples = 1000
+    n_features = 80
+
+    centers = create_centers_with_distances(
+        n_clusters=5,
+        n_features=n_features,
+        distances=[0.1, 1, 1.1, 10, 100]
+    )
+
+    x, y = make_blobs(
+        n_samples=n_samples,
+        centers=centers,
+        random_state=42
+    )
+
+    regions = ["Tokyo", "Osaka", "Kyoto", "Nagoya", "Fukuoka", "Sapporo"]
+    ranks = ["Gold", "Silver", "Bronze", "Platinum", "Diamond", "Master"]
+
+    rng = np.random.default_rng(42)
+    random_regions = rng.choice(regions, size=n_samples)
+    random_ranks = rng.choice(ranks, size=n_samples)
+
+    df = pl.DataFrame({
+        **{ f"feature_{i}": x[:, i] for i in range(n_features) },
+        "region": random_regions,
+        "rank": random_ranks,
+        "Label": y,
+    })
+    metadata = {
+        "n_samples": n_samples,
+        "n_features": n_features,
+        "n_clusters": len(centers),
+    }
+    return df, metadata
 
 
 def encode_categorical(df: pl.DataFrame, columns: List[str], method: EncodeMethod = 'one-hot'):
@@ -42,6 +81,8 @@ def normalize(df: pl.DataFrame, except_original_columns: List[str], method: Norm
     except_df = df[except_columns]
     df = df.drop(except_columns)
     # print(except_df.columns, df.columns)
+    df_normalized = pl.DataFrame()
+    col = ''
     try:
         match method:
             case 'z-score':
