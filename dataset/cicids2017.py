@@ -9,7 +9,7 @@ def relabeled_dataset(df: pl.DataFrame):
     df_copy = df.clone()
     labels = df['Label'].unique().to_list()
     for label in labels:
-        logger.info(label)
+        # logger.info(label)
         if "Attempted" in label:
             df_copy = df_copy.with_columns(
                 pl.when(pl.col("Label") == label)
@@ -38,5 +38,8 @@ def relabeled_dataset(df: pl.DataFrame):
                 .otherwise(pl.col("Label"))
                 .alias("Label")
             )
+    
+    # remove row which has "Label" is "BENIGN"
+    df_copy = df_copy.filter(pl.col("Label") != "BENIGN")
 
     return df_copy

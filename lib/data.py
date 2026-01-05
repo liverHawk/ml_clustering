@@ -4,6 +4,10 @@ from sklearn.datasets import make_blobs
 import numpy as np
 
 from .general import create_centers_with_distances
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 EncodeMethod = Literal['one-hot', 'label']
 NormalizeMethod = Literal['z-score', 'minmax', 'robust', 'none']
@@ -55,9 +59,10 @@ def encode_categorical(df: pl.DataFrame, columns: List[str], method: EncodeMetho
                 mapping_dict = {
                     val: idx for idx, val in enumerate(unique_values)
                 }
-                # print(mapping_dict)
+                # logger.info(mapping_dict)
                 df = df.with_columns(
-                    pl.col(col).replace(mapping_dict).cast(pl.Int8).alias(f'{col}_encoded')
+                    # Int8 だとユニーク値が多いときにオーバーフローするので、余裕を持って Int32 にする
+                    pl.col(col).replace(mapping_dict).cast(pl.Int32).alias(f'{col}_encoded')
                 )
                 df = df.drop(col)
             return df
@@ -80,7 +85,7 @@ def normalize(df: pl.DataFrame, except_original_columns: List[str], method: Norm
 
     except_df = df[except_columns]
     df = df.drop(except_columns)
-    # print(except_df.columns, df.columns)
+    # logger.info(except_df.columns, df.columns)
     df_normalized = pl.DataFrame()
     col = ''
     try:
@@ -106,7 +111,26 @@ def normalize(df: pl.DataFrame, except_original_columns: List[str], method: Norm
             case _:
                 raise ValueError('Invalid normalization method')
     except Exception as e:
-        print(e, col)
+        logger.info(e, col)
 
     df = pl.concat([df_normalized, except_df], how='horizontal')
     return df
+
+
+def get_schema(files):
+    unified_schema = {}
+    for file in files:
+        # logger.info(f"Getting schema for {file}")
+        current_schema = pl.read_csv(file, n_rows=0, schema_overrides={ "SimillarHTTP": pl.Utf8 }).schema
+        for col, dtype in current_schema.items():
+            if col =="SimillarHTTP":
+                unified_schema[col] = pl.Utf8
+                continue
+            if col not in unified_schema:
+                unified_schema[col] = dtype
+            else:
+                if unified_schema[col] != dtype:
+                    if dtype.is_float() or unified_schema[col].is_float():
+                        unified_schema[col] = pl.Float64
+
+    return unified_schema

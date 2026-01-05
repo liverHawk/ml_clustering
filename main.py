@@ -1,11 +1,18 @@
 import os
 import time
+import logging
+import coloredlogs
+
 from sklearn.cluster import KMeans
 from itertools import product
 from typing import get_args
 
 from lib.cluster_index import ClusterIndex
 from lib.data import encode_categorical, EncodeMethod, NormalizeMethod, normalize, make_sample_data
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='INFO')
 
 
 def normal_clustering(df, with_label=True, n_clusters: int = 5):
@@ -20,7 +27,7 @@ def normal_clustering(df, with_label=True, n_clusters: int = 5):
     end = n_clusters + 5
 
     for n_clusters in range(start, end):
-        # print(f"n_clusters={n_clusters}")
+        # logger.info(f"n_clusters={n_clusters}")
         kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
         cluster_labels = kmeans.fit_predict(x)
         score.add(n_clusters, x, cluster_labels, y, kmeans)
@@ -50,7 +57,7 @@ def _main():
 
     for category_method, normalize_method in product(encode_methods, normalize_methods):
         df_copy = df_original.clone()
-        print(f"{category_method} {normalize_method}")
+        logger.info(f"{category_method} {normalize_method}")
         df = encode_categorical(df_copy, ["region", "rank"], method=category_method)
         df = normalize(df, ["region", "rank"], method=normalize_method)
         score = normal_clustering(df)

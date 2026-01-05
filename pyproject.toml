@@ -10,3 +10,8 @@ dependencies = [
     "polars>=1.36.1",
     "scikit-learn>=1.8.0",
 ]
+
+[dependency-groups]
+dev = [
+    "coloredlogs>=15.0.1",
+]

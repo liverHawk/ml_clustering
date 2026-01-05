@@ -1,19 +1,38 @@
 import argparse
+import logging
+import coloredlogs
 
 import polars as pl
 from pathlib import Path
 import matplotlib.pyplot as plt
-import argparse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='INFO')
+
 
 def load_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--time", type=str, required=True)
-    return parser.parse_args()
+    parser.add_argument("-t", "--times", type=str, required=True)
+    parser.add_argument("-o", "--overwrite", action='store_true')
+    args = parser.parse_args()
+    args.times = [time.strip() for time in args.times.split(",")]
+    return args
 
-def main():
-    args = load_args()
-    analyze_time = args.time
+
+def single_analyze(analyze_time: str, overwrite: bool = False):
     path = Path(f"./results/csv/{analyze_time}")
+
+    analyze_path = path / "analyze.png"
+    if analyze_path.exists() and not overwrite:
+        return
+    wb_index_path = path / "wb_index.png"
+    if wb_index_path.exists() and not overwrite:
+        return
+
+    logger.info("--------------------------------")
+    logger.info(f"Analyzing time: {analyze_time}")
+
     files = path.glob("*.csv")
 
     n_columns = 3
@@ -58,7 +77,7 @@ def main():
 
     # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0, fontsize=18)
     plt.tight_layout()
-    plt.savefig(f"./results/csv/{analyze_time}/analyze.png")
+    plt.savefig(analyze_path)
     plt.close()
 
     plt.figure(figsize=(10, 5))
@@ -77,8 +96,34 @@ def main():
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0, fontsize=18)
     plt.tight_layout()
     plt.grid(True)
-    plt.savefig(f"./results/csv/{analyze_time}/wb_index.png")
+    plt.savefig(wb_index_path)
     plt.close()
+    
+    return
+
+def main():
+    args = load_args()
+
+    if len(args.times) == 1 and args.times[0] == "all":
+        path = Path("./results/csv/processed_datasets.csv")
+        df_time = pl.read_csv(path, columns=["time"])
+        times = df_time["time"].to_list()
+        for time in times:
+            try:
+                single_analyze(time, args.overwrite)
+            except Exception as e:
+                logger.error(f"Error analyzing time: {time}")
+                logger.error(e)
+                continue
+    else:
+        for time in args.times:
+            try:
+                single_analyze(time, args.overwrite)
+            except Exception as e:
+                logger.error(f"Error analyzing time: {time}")
+                logger.error(e)
+                continue
+    
 
 
 if __name__ == "__main__":

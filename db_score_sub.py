@@ -1,25 +1,40 @@
 import argparse
+import logging
+import coloredlogs
 
 import polars as pl
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-ANALYZE_TIME = '20260104-160822'
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='INFO')
 
 
 def load_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--time", type=str, required=True)
-    return parser.parse_args()
+    parser.add_argument("-t", "--times", type=str, required=True)
+    parser.add_argument("-o", "--overwrite", action='store_true')
+    args = parser.parse_args()
+    args.times = [time.strip() for time in args.times.split(",")]
+    return args
 
 
-def main():
-    args = load_args()
-    path = Path(f"./results/csv/{args.time}")
+def single_db_analyze(time: str, overwrite: bool = False):
+    path = Path(f"./results/csv/{time}")
+
+    db_score_acceleration_path = path / "db_score_acceleration.png"
+    if db_score_acceleration_path.exists() and not overwrite:
+        # logger.info("DB Score Acceleration file already exists. Skipping...")
+        return
+
+    logger.info("--------------------------------")
+    logger.info(f"Analyzing time: {time}")
+
     files = sorted(list(path.glob("*.csv")))
 
     if not files:
-        print("No CSV files found.")
+        logger.info("No CSV files found.")
         return
 
     # 1枚の図に「スコア」「1次階差（変化量）」「2次階差（変化量の変化）」の3つを並べる
@@ -89,10 +104,31 @@ def main():
             )
 
     plt.tight_layout()
-    output_path = path / "db_score_acceleration.png"
-    plt.savefig(output_path)
-    print(f"Analysis plot saved to: {output_path}")
+    plt.savefig(db_score_acceleration_path)
     plt.close()
+
+def main():
+    args = load_args()
+
+    if len(args.times) == 1 and args.times[0] == "all":
+        path = Path("./results/csv/processed_datasets.csv")
+        df_time = pl.read_csv(path, columns=["time"])
+        times = df_time["time"].to_list()
+        for time in times:
+            try:
+                single_db_analyze(time, args.overwrite)
+            except Exception as e:
+                logger.error(f"Error analyzing time: {time}")
+                logger.error(e)
+                continue
+    else:
+        for time in args.times:
+            try:
+                single_db_analyze(time, args.overwrite)
+            except Exception as e:
+                logger.error(f"Error analyzing time: {time}")
+                logger.error(e)
+                continue
 
 
 if __name__ == "__main__":

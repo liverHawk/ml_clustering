@@ -88,11 +88,20 @@ class ClusterIndex:
             return str(self.results)
 
     def _common_add(self, n_clusters, x, y):
+        # ラベルが1種類しかない場合、これらの指標は定義できないので NaN を入れてスキップ
+        if len(np.unique(y)) < 2:
+            self.results[n_clusters] = {
+                "silhouette_score": np.nan,
+                "ch_score": np.nan,
+                "db_score": np.nan
+            }
+            return
+
         silhouette_score = metrics.silhouette_score(x, y)
         ch_score = metrics.calinski_harabasz_score(x, y)
         db_score = metrics.davies_bouldin_score(x, y)
 
-        # print(f"n_clusters={n_clusters}, silhouette_score={silhouette_score:.3f}, ch_score={ch_score:.3f}, db_score={db_score:.3f}")
+        # logger.info(f"n_clusters={n_clusters}, silhouette_score={silhouette_score:.3f}, ch_score={ch_score:.3f}, db_score={db_score:.3f}")
 
         self.results[n_clusters] = {
             "silhouette_score": silhouette_score,
