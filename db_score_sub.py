@@ -1,3 +1,5 @@
+import argparse
+
 import polars as pl
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -5,8 +7,15 @@ import matplotlib.pyplot as plt
 ANALYZE_TIME = '20260104-160822'
 
 
+def load_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--time", type=str, required=True)
+    return parser.parse_args()
+
+
 def main():
-    path = Path(f"./results/csv/{ANALYZE_TIME}")
+    args = load_args()
+    path = Path(f"./results/csv/{args.time}")
     files = sorted(list(path.glob("*.csv")))
 
     if not files:
@@ -65,6 +74,7 @@ def main():
 
         # 最も「変化の勢いが弱まった」地点を特定（エルボー候補）
         if db_accel:
+            # db's elbow -> 下に凸 -> V字
             max_accel = max(db_accel)
             max_idx = db_accel.index(max_accel)
             target_n = n_clusters[max_idx + 2]  # index調整

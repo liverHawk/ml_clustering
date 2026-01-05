@@ -8,12 +8,18 @@ from lib.cluster_index import ClusterIndex
 from lib.data import encode_categorical, EncodeMethod, NormalizeMethod, normalize, make_sample_data
 
 
-def normal_clustering(df, with_label=True):
+def normal_clustering(df, with_label=True, n_clusters: int = 5):
+    if n_clusters < 5:
+        raise ValueError("n_clusters must be greater than 5")
+
     score = ClusterIndex(with_label=with_label)
     x = df.drop("Label").to_numpy()
     y = df["Label"].to_numpy()
 
-    for n_clusters in range(2, 10):
+    start = n_clusters - 4
+    end = n_clusters + 5
+
+    for n_clusters in range(start, end):
         # print(f"n_clusters={n_clusters}")
         kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
         cluster_labels = kmeans.fit_predict(x)
@@ -35,7 +41,7 @@ def save_score(score: ClusterIndex, method, normalize_method: NormalizeMethod = 
                 str(result[n_clusters][k]) for k in value_keys
             ) + '\n')
 
-def main():
+def _main():
     time_string = f'{time.strftime("%Y%m%d-%H%M%S")}'
     df_original, metadata = make_sample_data()
 
@@ -56,4 +62,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    _main()

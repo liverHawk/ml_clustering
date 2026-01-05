@@ -1,11 +1,19 @@
+import argparse
+
 import polars as pl
 from pathlib import Path
 import matplotlib.pyplot as plt
+import argparse
 
-ANALYZE_TIME = '20260104-160822'
+def load_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--time", type=str, required=True)
+    return parser.parse_args()
 
 def main():
-    path = Path(f"./results/csv/{ANALYZE_TIME}")
+    args = load_args()
+    analyze_time = args.time
+    path = Path(f"./results/csv/{analyze_time}")
     files = path.glob("*.csv")
 
     n_columns = 3
@@ -50,7 +58,7 @@ def main():
 
     # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0, fontsize=18)
     plt.tight_layout()
-    plt.savefig(f"./results/csv/{ANALYZE_TIME}/analyze.png")
+    plt.savefig(f"./results/csv/{analyze_time}/analyze.png")
     plt.close()
 
     plt.figure(figsize=(10, 5))
@@ -69,7 +77,7 @@ def main():
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0, fontsize=18)
     plt.tight_layout()
     plt.grid(True)
-    plt.savefig(f"./results/csv/{ANALYZE_TIME}/wb_index.png")
+    plt.savefig(f"./results/csv/{analyze_time}/wb_index.png")
     plt.close()
 
 
