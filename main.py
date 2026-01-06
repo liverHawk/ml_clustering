@@ -20,6 +20,7 @@ def normal_clustering(df, with_label=True, n_clusters: int = 5):
         raise ValueError("n_clusters must be greater than 5")
 
     score = ClusterIndex(with_label=with_label)
+    
     x = df.drop("Label").to_numpy()
     y = df["Label"].to_numpy()
 
@@ -35,9 +36,9 @@ def normal_clustering(df, with_label=True, n_clusters: int = 5):
     return score
 
 
-def save_score(score: ClusterIndex, method, normalize_method: NormalizeMethod = 'none', timing: str = None):
-    os.makedirs(f'./results/csv/{timing}', exist_ok=True)
-    file_name = f'{timing}/{method}_{normalize_method}'
+def save_score(score: ClusterIndex, method, normalize_method: NormalizeMethod = 'none', time_string: str = ""):
+    os.makedirs(f'./results/csv/{time_string}', exist_ok=True)
+    file_name = f'{time_string}/{method}_{normalize_method}'
     with open(f'./results/csv/{file_name}.csv', 'w') as f:
         result = score.get_results()
         cluster_keys = list(result.keys())
@@ -61,7 +62,7 @@ def _main():
         df = encode_categorical(df_copy, ["region", "rank"], method=category_method)
         df = normalize(df, ["region", "rank"], method=normalize_method)
         score = normal_clustering(df)
-        save_score(score, category_method, normalize_method, timing=time_string)
+        save_score(score, category_method, normalize_method, time_string=time_string)
 
     with open(f'./results/csv/{time_string}/metadata.txt', 'w') as f:
         for k, v in metadata.items():
