@@ -79,6 +79,14 @@ class BaseNMF(abc.ABC):
 
 class SSNMF(BaseNMF):
     def __init__(self, config: BaseNMFConfig, lambda_reg: float = 0.1):
+        import warnings
+        warnings.warn(
+            "SSNMF from ssnmf.py is deprecated and does not implement proper "
+            "semi-supervised label constraints. Use SSNMFFrobenius from "
+            "clustring_methods.ssnmf_refactored instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         super().__init__(config)
         self.lambda_reg = lambda_reg
         # self.config = config
@@ -108,6 +116,14 @@ class SSNMFDConfig:
 
 class SSNMFD(SSNMF):
     def __init__(self, config: SSNMFDConfig):
+        import warnings
+        warnings.warn(
+            "SSNMFD from ssnmf.py is deprecated. Use SSNMFDFrobenius from "
+            "clustring_methods.ssnmf_refactored instead for proper label "
+            "constraint support.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         super().__init__(config.ssnmf_config, config.lambda_reg)
         self.gamma_reg = config.gamma_reg
         self.n_neighbors = config.n_neighbors
