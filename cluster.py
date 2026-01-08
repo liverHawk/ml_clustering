@@ -68,17 +68,17 @@ class Cluster:
         )
         df = sampling(df, self.config.n_samples, self.config.seed)
 
-        column_names = []
+        category_columns = []
         file = os.path.join(
             os.path.dirname(__file__),
             f"dataset_metadata/{self.config.datasets[self.dataset_index]}.txt"
         )
         with open(file, "r") as f:
             for line in f:
-                column_names.append(line.strip())
+                category_columns.append(line.strip())
 
-        column_names = [col for col in column_names if col in df.columns]
-        metadata["column_names"] = column_names
+        category_columns = [col for col in category_columns if col in df.columns]
+        metadata["category_columns"] = category_columns
 
         return df, metadata
 
@@ -90,9 +90,12 @@ class Cluster:
         cols_before = len(df.columns)
         if self.metadata is None:
             raise ValueError("metadata is None")
+
+        logger.info(f"Method: encode->{encode_method}, normalize->{normalize_method}")
+
         df = encode_categorical(
             df,
-            self.metadata.get("column_names", []),
+            self.metadata.get("category_columns", []),
             method=encode_method
         )
         cols_after = len(df.columns)
@@ -102,11 +105,11 @@ class Cluster:
 
         df = normalize(
             df,
-            self.metadata.get("column_names", []),
+            self.metadata.get("category_columns", []),
             method=normalize_method
         )
         score = normal_clustering(df, n_clusters=int(self.metadata.get("n_clusters", 0)))
-        logger.info(score)
+        # logger.info(score)
 
     def run(self):
         self.df_sampling, self.metadata = self._load_dataset()
