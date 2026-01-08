@@ -82,6 +82,12 @@ class Cluster:
 
         return df, metadata
 
+    def _ssnmf_clustering(self, df, n_clusters: int = 5):
+        # reshape input data
+
+        # input data into ssnmf
+        pass
+
     def _loop(self, encode_method, normalize_method):
         if self.df_sampling is None:
             raise ValueError("df_sampling is None")
@@ -108,8 +114,11 @@ class Cluster:
             self.metadata.get("category_columns", []),
             method=normalize_method
         )
-        score = normal_clustering(df, n_clusters=int(self.metadata.get("n_clusters", 0)))
-        # logger.info(score)
+        if self.config.cluster_method == "ssnmf":
+            score = self._ssnmf_clustering(df, n_clusters=int(self.metadata.get("n_clusters", 0)))
+        elif self.config.cluster_method == "kmeans":
+            score = normal_clustering(df, n_clusters=int(self.metadata.get("n_clusters", 0)))
+            # logger.info(score)
 
     def run(self):
         self.df_sampling, self.metadata = self._load_dataset()
