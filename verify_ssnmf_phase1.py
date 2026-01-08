@@ -37,6 +37,8 @@ def test_unlabeled_nmf():
     model.fit(X)
 
     # Verify non-negativity
+    assert model.W is not None, "W is None"
+    assert model.H is not None, "H is None"
     assert np.all(model.W >= 0), "W contains negative values"
     assert np.all(model.H >= 0), "H contains negative values"
     print("✓ Non-negativity constraint satisfied")
@@ -82,11 +84,13 @@ def test_labeled_nmf():
     model.fit(X, labels=W_label, labeled_indices=labeled_indices)
 
     # Verify label constraint is satisfied
+    assert model.W is not None, "W is None"
     W_labeled = model.W[labeled_indices]
     label_error = np.linalg.norm(W_labeled - W_label, "fro")
     print(f"\n✓ Label constraint error: {label_error:.6f}")
 
     # Verify non-negativity
+    assert model.H is not None, "H is None"
     assert np.all(model.W >= 0), "W contains negative values"
     assert np.all(model.H >= 0), "H contains negative values"
     print("✓ Non-negativity constraint satisfied")
@@ -132,6 +136,9 @@ def test_alpha_effect():
 
         model = SSNMFFrobenius(config)
         model.fit(X, labels=W_label, labeled_indices=labeled_indices)
+
+        assert model.W is not None, "W is None"
+        assert model.H is not None, "H is None"
 
         W_labeled = model.W[labeled_indices]
         recon_error = np.sum((X - model.W @ model.H) ** 2)
@@ -227,6 +234,8 @@ def test_numerical_stability():
     model = SSNMFFrobenius(config)
     model.fit(X_small)
 
+    assert model.W is not None, "W is None"
+    assert model.H is not None, "H is None"
     assert not np.any(np.isnan(model.W)), "W contains NaN"
     assert not np.any(np.isnan(model.H)), "H contains NaN"
     assert not np.any(np.isinf(model.W)), "W contains Inf"
@@ -239,6 +248,9 @@ def test_numerical_stability():
 
     model2 = SSNMFFrobenius(config)
     model2.fit(X_large)
+
+    assert model2.W is not None, "W is None"
+    assert model2.H is not None, "H is None"
 
     assert not np.any(np.isnan(model2.W)), "W contains NaN"
     assert not np.any(np.isnan(model2.H)), "H contains NaN"
