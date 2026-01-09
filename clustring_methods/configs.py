@@ -87,6 +87,33 @@ class SSNMFDConfig:
     n_neighbors: int = 10
 
 
+@dataclass
+class SSKNMFConfig:
+    """Configuration for Semi-Supervised Kernel Non-negative Matrix Factorization.
+
+    This configuration is for SS-KNMF which uses kernel matrices K ≈ HH^T
+    instead of the standard X ≈ WH decomposition.
+
+    Attributes:
+        n_clusters: Number of clusters (rank of factorization)
+        alpha: Label constraint regularization strength (default: 0.1)
+               Higher values enforce stronger label constraints.
+               Set to 0.0 for unsupervised mode.
+        max_iter: Maximum number of iterations (default: 200)
+        tol: Relative tolerance for convergence (default: 1e-4)
+        random_state: Random seed for reproducibility (default: 42)
+        verbose: Whether to print progress information (default: False)
+        eps: Small value for numerical stability (default: 1e-10)
+    """
+    n_clusters: int
+    alpha: float = 0.1
+    max_iter: int = 200
+    tol: float = 1e-4
+    random_state: int = 42
+    verbose: bool = False
+    eps: float = 1e-10
+
+
 # Convenience factory functions for creating configurations
 
 def create_frobenius_config(

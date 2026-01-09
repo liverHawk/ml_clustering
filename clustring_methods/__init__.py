@@ -20,9 +20,16 @@ from .configs import (
     SSNMFFrobeniusConfig,
     SSNMFKLConfig,
     SSNMFDConfig,
+    SSKNMFConfig,
     create_frobenius_config,
     create_kl_config,
     create_ssnmfd_config,
+)
+from .gower_ssknmf import (
+    GowerSSKNMF,
+    SSKNMF,
+    gower_distance_vectorized,
+    gower_to_kernel,
 )
 
 # Backward compatibility - Old implementations
@@ -58,9 +65,15 @@ __all__ = [
     "SSNMFFrobeniusConfig",
     "SSNMFKLConfig",
     "SSNMFDConfig",
+    "SSKNMFConfig",
     "create_frobenius_config",
     "create_kl_config",
     "create_ssnmfd_config",
+    # Gower SS-KNMF
+    "GowerSSKNMF",
+    "SSKNMF",
+    "gower_distance_vectorized",
+    "gower_to_kernel",
     # Backward compatibility
     "BaseNMF",
     "SSNMF_OLD",
