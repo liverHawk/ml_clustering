@@ -3,14 +3,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import polars as pl
 import numpy as np
+import argparse
 import matplotlib.pyplot as plt
 import seaborn as sns
 import logging
 from dataclasses import dataclass
 from typing import Optional, List
 
-from clustring_methods import GowerSSKNMF
+from clustering_methods import GowerSSKNMF
 from dataset.utils import load_dataset
+from lib.data import get_methods, normalize
 from lib.cluster_index import ClusterIndex
 from sklearn.metrics import silhouette_score
 
@@ -21,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SSKNMFConfig:
     dataset_name: str = "CICIDS2017_improved"
+    dataframe: Optional[pl.DataFrame] = None
     categorical_cols: Optional[List[str]] = None
     exclude_labels: Optional[List[str]] = None
     n_samples_per_label: int = 5
@@ -327,6 +330,44 @@ class SSKNMFCluster:
         
         return self.cluster_labels, score
 
+
+
+# def ssknmf_clustering(df):
+    
+
+def single_ssknmf(dataset, verbose, n_samples):
+    df_original, metadata = load_dataset(dataset, debug=verbose)
+    least_label_count = df_original["Label"].value_counts()["count"].min()
+
+    if n_samples == 0:
+        n_samples = least_label_count
+    elif least_label_count < n_samples:
+        raise ValueError(f"Least label count is less than n_samples: {least_label_count} < {n_samples}")
+    
+    df_sampling = df_original.group_by("Label", maintain_order=True).map_groups(
+        lambda group: group.sample(n=n_samples, seed=42)
+    )
+    metadata["n_samples"] = len(df_sampling)
+    metadata["n_samples_per_label"] = n_samples
+
+    category_columns, _, normalize_methods = get_methods(df_sampling)
+
+    for normalize_method in normalize_methods:
+        df_copy = df_sampling.clone()
+        df = normalize(df_copy, category_columns, method=normalize_method)
+
+        score = ssknmf_clustering(df, n_clusters=metadata["n_clusters"])
+
+        save_score(score, normalize_method, timing=time_string)
+
+def _main():
+    args = load_args()
+
+    if args.datasets == "all":
+        pass
+    else:
+        for dataset in args.datasets:
+            single_ssknmf(dataset, args.verbose, args.n_samples)
 
 if __name__ == "__main__":
     config = SSKNMFConfig(

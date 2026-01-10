@@ -5,12 +5,23 @@ import numpy as np
 
 from .general import create_centers_with_distances
 import logging
+from typing import get_args
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 EncodeMethod = Literal['one-hot', 'label']
 NormalizeMethod = Literal['z-score', 'minmax', 'robust', 'none']
+
+
+def get_methods(df: pl.DataFrame):
+    category_columns = ["Source Port", "Destination Port", "Protocol", "Src Port", "Dst Port"]
+    category_columns = [col for col in category_columns if col in df.columns]
+    encode_methods = get_args(EncodeMethod)
+    normalize_methods = get_args(NormalizeMethod)
+    return category_columns, encode_methods, normalize_methods
+
 
 def make_sample_data():
     n_samples = 1000

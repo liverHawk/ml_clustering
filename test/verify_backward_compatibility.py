@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 import warnings
 
-# Add clustring_methods to path
+# Add clustering_methods to path
 sys.path.insert(0, str(Path(__file__).parent))
 
 print("=" * 60)
@@ -19,8 +19,8 @@ print("=" * 60)
 # Test 1: Check that old imports work
 print("\n[TEST 1] Old import pattern (as used in sample_ssnmf_d.py)")
 try:
-    from clustring_methods import ssnmf
-    print("✓ Import successful: from clustring_methods import ssnmf")
+    from clustering_methods import ssnmf
+    print("✓ Import successful: from clustering_methods import ssnmf")
 except Exception as e:
     print(f"❌ Import failed: {e}")
     sys.exit(1)
@@ -104,7 +104,7 @@ except Exception as e:
 # Test 5: Verify new API also works
 print("\n[TEST 5] New API also accessible")
 try:
-    from clustring_methods import SSNMFDFrobenius, create_ssnmfd_config
+    from clustering_methods import SSNMFDFrobenius, create_ssnmfd_config
     print("✓ New imports successful")
 
     new_config = create_ssnmfd_config(n_components=5, max_iter=10, verbose=False)

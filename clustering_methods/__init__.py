@@ -43,7 +43,7 @@ from .ssnmf import (
 )
 
 # For backward compatibility, export old names under 'ssnmf' namespace
-# This allows code like: from clustring_methods import ssnmf; ssnmf.SSNMFD(...)
+# This allows code like: from clustering_methods import ssnmf; ssnmf.SSNMFD(...)
 class _BackwardCompatNamespace:
     """Namespace for backward compatibility."""
     SSNMF = SSNMF_OLD

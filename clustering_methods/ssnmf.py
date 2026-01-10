@@ -83,7 +83,7 @@ class SSNMF(BaseNMF):
         warnings.warn(
             "SSNMF from ssnmf.py is deprecated and does not implement proper "
             "semi-supervised label constraints. Use SSNMFFrobenius from "
-            "clustring_methods.ssnmf_refactored instead.",
+            "clustering_methods.ssnmf_refactored instead.",
             DeprecationWarning,
             stacklevel=2
         )
@@ -119,7 +119,7 @@ class SSNMFD(SSNMF):
         import warnings
         warnings.warn(
             "SSNMFD from ssnmf.py is deprecated. Use SSNMFDFrobenius from "
-            "clustring_methods.ssnmf_refactored instead for proper label "
+            "clustering_methods.ssnmf_refactored instead for proper label "
             "constraint support.",
             DeprecationWarning,
             stacklevel=2

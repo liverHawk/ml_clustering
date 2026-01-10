@@ -162,8 +162,8 @@ def _(df_initial_selected):
 
 @app.cell
 def _():
-    from clustring_methods.configs import create_frobenius_config
-    from clustring_methods.ssnmf_refactored import SSNMFFrobenius
+    from clustering_methods.configs import create_frobenius_config
+    from clustering_methods.ssnmf_refactored import SSNMFFrobenius
     return SSNMFFrobenius, create_frobenius_config
 
 

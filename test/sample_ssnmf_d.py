@@ -127,8 +127,8 @@ def _(df_sampling, np):
 
 @app.cell
 def _():
-    from clustring_methods import ssnmf
-    from clustring_methods.utils.nndsvd import nndsvd_initialization, NNDSVDConfig
+    from clustering_methods import ssnmf
+    from clustering_methods.utils.nndsvd import nndsvd_initialization, NNDSVDConfig
     return NNDSVDConfig, nndsvd_initialization, ssnmf
 
 

@@ -192,8 +192,8 @@ def _(df_initial_selected):
 
 @app.cell
 def _(mo):
-    from clustring_methods.configs import create_frobenius_config
-    from clustring_methods.ssnmf_refactored import SSNMFFrobenius
+    from clustering_methods.configs import create_frobenius_config
+    from clustering_methods.ssnmf_refactored import SSNMFFrobenius
 
     alpha_input = mo.ui.number(label="Alpha parameter", value=0.5, start=0.0, stop=1.0, step=0.1)
     max_iter_input = mo.ui.number(label="Max iterations", value=200, start=10, stop=1000, step=10)
