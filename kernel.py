@@ -78,7 +78,7 @@ def _plot_confusion_matrix(true_and_predictions, save_path, n_clusters):
     plt.title(f"Confusion Matrix (n_clusters={n_clusters})")
     plt.xlabel("Predicted Cluster")
     plt.ylabel("True Label")
-    plt.savefig(save_path / f"confusion_matrix_{n_clusters}.png", dpi=300, bbox_inches='tight')
+    plt.savefig(save_path / f"confusion_matrix_{n_clusters:02d}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
 
@@ -149,7 +149,7 @@ def main():
             evaluation["predictions"].to_numpy(),
             evaluation["true_labels"].to_numpy(),
         )
-        exp.log_metrics(score.get_results(n_clusters))
+        exp.log_metrics(score.get_results(n_clusters), step=n_clusters)
 
     score.plot(
         path=save_path / "kernel_class_",
