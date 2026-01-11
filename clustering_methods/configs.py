@@ -5,7 +5,7 @@ The configuration hierarchy follows the class hierarchy to maintain consistency.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 
 
@@ -227,3 +227,24 @@ def create_ssnmfd_config(
         gamma=gamma,
         n_neighbors=n_neighbors,
     )
+
+@dataclass
+class GowerSSKNMFConfig:
+    """
+    Attributes:
+        base_path: Base path to the dataset
+        dataset_name: Name of the dataset
+        use_labels: Labels to use for clustering
+        known_labels: Labels to use for selecting known data
+        n_samples_per_label: Number of samples per label
+        labeled_rate: Rate of selecting labeled data (of known data per label)
+
+    """
+    base_path: str
+    dataset_name: str
+
+    n_samples_per_label: int
+    labeled_rate: float
+
+    random_state: int = 42
+    debug: bool = False

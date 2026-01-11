@@ -20,7 +20,9 @@ import logging
 from typing import Optional, List, Union
 from dataclasses import dataclass
 
-from .configs import SSKNMFConfig
+from dataset.utils import load_dataset
+
+from .configs import SSKNMFConfig, GowerSSKNMFConfig
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -404,151 +406,149 @@ class SSKNMF:
 
 
 class GowerSSKNMF:
-    """Gower距離ベースのSS-KNMF高レベルAPI.
+    def __init__(self, config: GowerSSKNMFConfig):
+        self.config = config
+
+        self.df_original, self.metadata = load_dataset(
+            dataset_name=self.config.dataset_name,
+            debug=self.config.debug,
+            base_path=self.config.base_path
+        )
+        self.all_labels = self.df_original["Label"].unique().to_list()
+        self.use_labels = None
+        self.known_labels = None
+
+        self.categorical_cols = None
+
+        self.df_setup = None
+        self.labeled_indices = None
+        self.labels = None
+        self.kernel = None
+
+    def _setup(self):
+        use_labels = [label for label in self.use_labels if label in self.all_labels]
+        df: pl.DataFrame = self.df_original.filter(pl.col("Label").is_in(use_labels))
+        # logger.info(f"use labels: {use_labels}(len: {len(use_labels)})")
+
+        df = df.with_row_index("index")
+
+        df_known: pl.DataFrame = df.filter(pl.col("Label").is_in(self.known_labels))
+        df_unknown: pl.DataFrame = df.filter(~pl.col("Label").is_in(self.known_labels))
+        # logger.info(f"df_known: {df_known.shape}")
+        # logger.info(f"df_unknown: {df_unknown.shape}")
+
+        # =============== known ====================
+        df_sample = df_known.group_by("Label", maintain_order=True).map_groups(
+            lambda group: group.sample(n=self.config.n_samples_per_label, seed=42)
+        )
+        # logger.info(f"df_sample: {df_sample.shape}")
+
+        labeled_samples = df_sample.group_by("Label", maintain_order=True).map_groups(
+            lambda group: group.sample(n=int(self.config.n_samples_per_label * self.config.labeled_rate), seed=42)
+        )
+        # logger.info(f"labeled_indices: len: {len(labeled_indices)}")
+
+        label_mapping = {label: i for i, label in enumerate(self.known_labels)}
+        logger.info(f"label_mapping: {label_mapping}")
+        labeled_samples = labeled_samples.with_columns(
+            pl.col("Label").replace(label_mapping).alias("label_encoded")
+        )
+        _labeled_indices = labeled_samples["index"].to_list()
+        label_encoded_dtype = labeled_samples["label_encoded"].dtype
+        # logger.info(labeled_samples["label_encoded"].head(3))
+        # logger.info(labeled_samples[['Label', 'label_encoded']].group_by("Label").head(3))
+        labels = labeled_samples["label_encoded"].to_list()
+
+        no_labeled_samples = df_sample.filter(~pl.col("index").is_in(_labeled_indices))
+        no_labeled_samples = no_labeled_samples.with_columns(
+            pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
+        )
+
+        # ----- labeled_indices and labels -----
+
+        # ================= unknown ====================
+        unknown_samples = df_unknown.group_by("Label", maintain_order=True).map_groups(
+            lambda group: group.sample(n=min(self.config.n_samples_per_label, len(group)), seed=42)
+        )
+        unknown_samples = unknown_samples.with_columns(
+            pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
+        )
+        # ----- unlabeled_samples -----
+
+        df_combined = pl.concat([
+            no_labeled_samples,
+            labeled_samples,
+            unknown_samples
+        ])
+        df_combined = df_combined.drop("index").with_row_index("index")
+
+        labeled = df_combined.filter(pl.col("label_encoded") != "-1")
+        labeled_indices = labeled["index"].to_list()
+        labels = labeled["label_encoded"].to_list()
+
+        return df_combined, labeled_indices, labels
     
-    This class provides a high-level interface for SS-KNMF using Gower distance
-    for mixed-type data. It handles data preprocessing, distance computation,
-    kernel transformation, and clustering in a single interface.
+    def get_labels(self) -> List[str]:
+        return self.df_original["Label"].unique().to_list()
     
-    Attributes:
-        categorical_cols: List of categorical column names
-        numerical_cols: List of numerical column names
-        kernel_method: Kernel transformation method
-        kernel_sigma: Kernel width parameter
-        model: SSKNMF instance
-        distance_matrix_: Computed Gower distance matrix
-    """
+    def get_columns(self) -> List[str]:
+        return self.df_original.columns.to_list()
     
-    def __init__(
-        self,
-        categorical_cols: List[str],
-        numerical_cols: List[str],
-        n_clusters: int,
-        kernel_method: str = 'rbf',
-        kernel_sigma: Optional[float] = None,
-        alpha: float = 0.1,
-        max_iter: int = 200,
-        tol: float = 1e-4,
-        verbose: bool = False,
-        random_state: int = 42,
-    ):
-        """Initialize GowerSSKNMF.
+    def set_labels(self, use_labels: List[str], known_labels: List[str]):
+        self.use_labels = use_labels
+        self.known_labels = known_labels
+
+        self.df_setup, self.labeled_indices, self.labels = self._setup()
+
+    def set_cols(self, categorical_columns: List[str]):
+        self.categorical_cols = categorical_columns
+
+    def convert_to_kernel(self):
+        assert self.categorical_cols is not None
         
-        Args:
-            categorical_cols: カテゴリ変数のカラム名リスト
-            numerical_cols: 数値変数のカラム名リスト
-            n_clusters: クラスタ数
-            kernel_method: カーネル方法 ('linear', 'rbf', 'exponential')
-            kernel_sigma: カーネル幅（Noneの場合は自動設定）
-            alpha: ラベル制約の強さ
-            max_iter: 最大反復回数
-            tol: 収束判定の閾値
-            verbose: 進捗表示
-            random_state: 乱数シード
-        """
-        self.categorical_cols = categorical_cols
-        self.numerical_cols = numerical_cols
-        self.kernel_method = kernel_method
-        self.kernel_sigma = kernel_sigma
-        self.distance_matrix_: Optional[np.ndarray] = None
+        # 除外する列を定義（存在する列のみ）
+        exclude_cols = ["index", "Label", "label_encoded"]
+        cols_to_drop = [col for col in exclude_cols if col in self.df_setup.columns]
         
+        numerical_cols = [
+            col for col in self.df_setup.columns 
+            if col not in self.categorical_cols + cols_to_drop
+        ]
+
+        distance_matrix = gower_distance_vectorized(
+            self.df_setup.drop(cols_to_drop),
+            self.categorical_cols,
+            numerical_cols
+        )
+
+        kernel_matrix = gower_to_kernel(
+            distance_matrix,
+            method="rbf"
+        )
+        assert np.all(kernel_matrix >= 0) and np.all(kernel_matrix <= 1)
+
+        self.kernel = kernel_matrix
+
+    def get_kernel(self) -> np.ndarray:
+        return self.kernel
+
+    def predict(self, n_clusters, alpha, max_iter, tol):
         config = SSKNMFConfig(
             n_clusters=n_clusters,
             alpha=alpha,
             max_iter=max_iter,
             tol=tol,
-            verbose=verbose,
-            random_state=random_state,
+            random_state=self.config.random_state,
+            verbose=self.config.debug
         )
-        self.model = SSKNMF(config)
-    
-    def fit_predict(
-        self,
-        df: pl.DataFrame,
-        labeled_indices: Optional[np.ndarray] = None,
-        labels: Optional[np.ndarray] = None,
-    ) -> np.ndarray:
-        """学習と予測を実行
-        
-        Args:
-            df: Polars DataFrame
-            labeled_indices: ラベル付きサンプルのインデックス
-            labels: クラスタラベル
-        
-        Returns:
-            クラスタラベル (n,)
-        """
-        # Gower距離の計算
-        self.distance_matrix_ = gower_distance_vectorized(
-            df, self.categorical_cols, self.numerical_cols
-        )
-        
-        # カーネル変換
-        K = gower_to_kernel(
-            self.distance_matrix_,
-            method=self.kernel_method,
-            sigma=self.kernel_sigma,
-        )
-        
-        # SS-KNMFの学習
-        self.model.fit(K, labeled_indices, labels)
-        
-        # 予測
-        return self.model.predict()
-    
-    def fit(
-        self,
-        df: pl.DataFrame,
-        labeled_indices: Optional[np.ndarray] = None,
-        labels: Optional[np.ndarray] = None,
-    ) -> "GowerSSKNMF":
-        """学習のみ実行
-        
-        Args:
-            df: Polars DataFrame
-            labeled_indices: ラベル付きサンプルのインデックス
-            labels: クラスタラベル
-        
-        Returns:
-            self: Fitted model
-        """
-        # Gower距離の計算
-        self.distance_matrix_ = gower_distance_vectorized(
-            df, self.categorical_cols, self.numerical_cols
-        )
-        
-        # カーネル変換
-        K = gower_to_kernel(
-            self.distance_matrix_,
-            method=self.kernel_method,
-            sigma=self.kernel_sigma,
-        )
-        
-        # SS-KNMFの学習
-        self.model.fit(K, labeled_indices, labels)
-        
-        return self
-    
-    def predict(self) -> np.ndarray:
-        """クラスタラベルを予測
-        
-        Returns:
-            クラスタラベル (n,)
-        """
-        return self.model.predict()
-    
-    def get_cluster_membership(self) -> np.ndarray:
-        """クラスタ所属確率を取得
-        
-        Returns:
-            所属度行列 (k×n)
-        """
-        return self.model.get_cluster_membership()
-    
-    def get_reconstruction_errors(self) -> List[float]:
-        """再構成誤差の履歴を取得
-        
-        Returns:
-            各反復での再構成誤差のリスト
-        """
-        return self.model.get_reconstruction_errors()
+        model = SSKNMF(config)
+        model.fit(self.kernel, self.labeled_indices, self.labels)
+
+        assert self.kernel is not None
+        assert self.labeled_indices is not None
+
+        predictions = model.predict()
+        membership = model.get_cluster_membership()
+
+        return predictions, membership
+

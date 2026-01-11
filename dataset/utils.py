@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned"):
-    path = Path(f"{base_path}/{dataset_name}")
+    path = Path(f"{base_path}") / dataset_name
     files = list(path.glob("*.csv"))
     schema = get_schema(files)
     # 遅延評価でメモリ効率を向上（スキーマを事前に指定して型推論を回避）
@@ -25,7 +25,7 @@ def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False,
     delete_columns = ["Src IP", "Dst IP", "Timestamp", "Source IP", "Destination IP", "SimillarHTTP"]
     delete_columns = [col for col in delete_columns if col in df.columns]
 
-    df = df.drop(delete_columns)
+    df: pl.DataFrame = df.drop(delete_columns)
 
     if debug:
         for col in df.columns:

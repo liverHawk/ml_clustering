@@ -34,7 +34,7 @@ Semi-Supervised Non-negative Matrix Factorization (SSNMF) ライブラリの包�
 
 ```python
 import numpy as np
-from clustring_methods import SSNMFFrobenius, create_frobenius_config
+from clustering_methods import SSNMFFrobenius, create_frobenius_config
 
 # データ準備（非負行列）
 X = np.abs(np.random.randn(100, 50))  # 100サンプル × 50特徴
@@ -72,7 +72,7 @@ subject to: W ≥ 0, H ≥ 0
 KLダイバージェンスを使ったNMF：
 
 ```python
-from clustring_methods import SSNMFKL, create_kl_config
+from clustering_methods import SSNMFKL, create_kl_config
 
 # データ準備（非負、ゼロを避ける）
 X = np.abs(np.random.randn(100, 50)) + 0.1
@@ -109,7 +109,7 @@ subject to: W ≥ 0, H ≥ 0
 一部のサンプルにラベル（W行列の制約）を付けて学習：
 
 ```python
-from clustring_methods import SSNMFFrobenius, create_frobenius_config
+from clustering_methods import SSNMFFrobenius, create_frobenius_config
 
 # データ準備
 X = np.abs(np.random.randn(100, 50))
@@ -187,7 +187,7 @@ for alpha in [0.1, 1.0, 10.0]:
 特徴空間でのグラフ構造を考慮したNMF：
 
 ```python
-from clustring_methods import SSNMFDFrobenius, create_ssnmfd_config
+from clustering_methods import SSNMFDFrobenius, create_ssnmfd_config
 
 # データ準備
 X = np.abs(np.random.randn(100, 50))
@@ -257,7 +257,7 @@ subject to: W ≥ 0, H ≥ 0
 ### 7. SSNMFDKL（KLダイバージェンス + グラフ正則化）
 
 ```python
-from clustring_methods import SSNMFDKL, create_ssnmfd_config
+from clustering_methods import SSNMFDKL, create_ssnmfd_config
 
 X = np.abs(np.random.randn(100, 50)) + 0.1
 
@@ -287,7 +287,7 @@ subject to: W ≥ 0, H ≥ 0
 NMFの基底行列Wを使ってクラスタリング：
 
 ```python
-from clustring_methods import SSNMFFrobenius, create_frobenius_config
+from clustering_methods import SSNMFFrobenius, create_frobenius_config
 import numpy as np
 
 # データ準備（例：文書-単語行列）
@@ -341,8 +341,8 @@ print(f"相対再構成誤差: {error:.4f}")
 Non-negative Double SVDによる初期化で収束を改善：
 
 ```python
-from clustring_methods import SSNMFFrobenius, create_frobenius_config
-from clustring_methods.utils.nndsvd import nndsvd_initialization, NNDSVDConfig
+from clustering_methods import SSNMFFrobenius, create_frobenius_config
+from clustering_methods.utils.nndsvd import nndsvd_initialization, NNDSVDConfig
 
 # データ準備
 X = np.abs(np.random.randn(100, 50))
@@ -381,7 +381,7 @@ model.fit(X)
 
 ```python
 # 既存の書き方（sample_ssnmf_d.py）
-from clustring_methods import ssnmf
+from clustering_methods import ssnmf
 
 base_config = ssnmf.BaseNMFConfig(n_components=5, max_iter=100, tol=1e-4, ...)
 config = ssnmf.SSNMFDConfig(ssnmf_config=base_config, lambda_reg=0.1, gamma_reg=0.1, ...)
@@ -392,7 +392,7 @@ model.fit(X)
 **警告メッセージ:**
 ```
 DeprecationWarning: SSNMFD from ssnmf.py is deprecated.
-Use SSNMFDFrobenius from clustring_methods.ssnmf_refactored instead
+Use SSNMFDFrobenius from clustering_methods.ssnmf_refactored instead
 for proper label constraint support.
 ```
 
@@ -404,7 +404,7 @@ for proper label constraint support.
 
 ```python
 # 新しい書き方
-from clustring_methods import SSNMFDFrobenius, create_ssnmfd_config
+from clustering_methods import SSNMFDFrobenius, create_ssnmfd_config
 
 config = create_ssnmfd_config(
     n_components=5,
@@ -514,12 +514,12 @@ model.fit(X)
 
 **出力例:**
 ```
-INFO:clustring_methods.ssnmf_refactored:Iter 001: err=193.751461, rel=inf
-INFO:clustring_methods.ssnmf_refactored:Iter 002: err=185.977542, rel=4.01e-02
-INFO:clustring_methods.ssnmf_refactored:Iter 003: err=179.756796, rel=3.34e-02
+INFO:clustering_methods.ssnmf_refactored:Iter 001: err=193.751461, rel=inf
+INFO:clustering_methods.ssnmf_refactored:Iter 002: err=185.977542, rel=4.01e-02
+INFO:clustering_methods.ssnmf_refactored:Iter 003: err=179.756796, rel=3.34e-02
 ...
-INFO:clustring_methods.ssnmf_refactored:Iter 100: err=105.410085, rel=4.26e-04
-INFO:clustring_methods.ssnmf_refactored:Converged.
+INFO:clustering_methods.ssnmf_refactored:Iter 100: err=105.410085, rel=4.26e-04
+INFO:clustering_methods.ssnmf_refactored:Converged.
 ```
 
 **収束していない場合:**

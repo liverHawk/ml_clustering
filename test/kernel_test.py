@@ -152,6 +152,9 @@ def main():
         method="rbf"
     )
     assert np.all(kernel_matrix >= 0) and np.all(kernel_matrix <= 1)
+    """
+    ここまでをGowerSSKNMF.__init__でしたい
+    """
     # logger.info(f"kernel_matrix: {kernel_matrix.shape}")
 
     n_clusters = len(use_labels)
