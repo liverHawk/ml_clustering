@@ -134,6 +134,12 @@ class ClusterIndex:
             "NMI": nmi,
             "FMI": fmi
         }
+    
+    def get_results(self, n_clusters):
+        return {
+            **self.results[n_clusters],
+            **(self.results_with_label[n_clusters] if self.with_label else {})
+        }
 
     def _normal_plot(self, path="", separate_plots=False):
         if path != "" and path[-1] != "/":
@@ -150,6 +156,7 @@ class ClusterIndex:
         _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI"], path, separate_plots)
 
     def plot(self, path="", separate_plots=False):
+        path = str(path)
         self._normal_plot(path, separate_plots)
         if self.with_label:
             self._plot_with_label(path + "label_", separate_plots)

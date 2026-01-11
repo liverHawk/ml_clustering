@@ -1,0 +1,26 @@
+dataset: "CICIDS2017_flow_improved"
+n_samples_per_label: 100
+labeled_rate: 0.4
+random_state: 42
+n_clusters_range: [5, 6, 7, 8, 9, 10, 11, 12, 13]
+alpha: 0.2
+max_iter: 100
+tol: 1e-6
+use_labels: 
+  - "Heartbleed"
+  - "Infiltration"
+  - "Bot"
+  - "DoS"
+  - "DDoS"
+  - "SSH-Patator"
+  - "PortScan"
+  - "FTP-Patator"
+  - "Web Attack"
+known_labels: 
+  - "DoS"
+  - "FTP-Patator"
+  - "Bot"
+categorical_columns: 
+  - "Src Port"
+  - "Dst Port"
+  - "Protocol"
