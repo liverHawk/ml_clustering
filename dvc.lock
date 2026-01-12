@@ -1,19 +1,19 @@
 schema: '2.0'
 stages:
   run:
-    cmd: uv run kernel.py
+    cmd: uv run kernel_h.py
     deps:
-    - path: kernel.py
+    - path: kernel_h.py
       hash: md5
-      md5: c67cd9c002acd11413d0e664e45d2d12
-      size: 5577
+      md5: 9b4638c88f288ab5ef7afce889643058
+      size: 7479
     - path: params.yaml
       hash: md5
-      md5: 870e8c175c2ce74a4c7db939d639b212
-      size: 471
+      md5: 88f0f832e8d7905511cc845244a4555a
+      size: 1458
     outs:
     - path: results
       hash: md5
-      md5: 6be579bc759252af744fbe8162bb82f5.dir
-      size: 1935472
+      md5: 118e4f2f4b2e7027fd86176cdc67c2ac.dir
+      size: 1954439
       nfiles: 13

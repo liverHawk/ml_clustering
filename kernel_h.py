@@ -49,11 +49,11 @@ def load_params():
         params["beta"] = float(params["beta"])
     if "learning_rate" in params:
         params["learning_rate"] = float(params["learning_rate"])
-    if "alpha_init" in params:
+    if "alpha_init" in params and params["alpha_init"] is not None:
         params["alpha_init"] = float(params["alpha_init"])
-    if "alpha_final" in params:
+    if "alpha_final" in params and params["alpha_final"] is not None:
         params["alpha_final"] = float(params["alpha_final"])
-    if "confidence_weights" in params:
+    if "confidence_weights" in params and params["confidence_weights"] is not None:
         params["confidence_weights"] = np.array(params["confidence_weights"])
     
     return params

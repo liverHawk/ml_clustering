@@ -1,8 +1,8 @@
 stages:
   run:
-    cmd: uv run kernel.py
+    cmd: uv run kernel_h.py
     deps:
-      - kernel.py
+      - kernel_h.py
       - params.yaml
     outs:
       - results
