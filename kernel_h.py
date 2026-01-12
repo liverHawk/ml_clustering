@@ -39,6 +39,22 @@ def load_params():
         params["random_state"] = int(params["random_state"])
     if "max_iter" in params:
         params["max_iter"] = int(params["max_iter"])
+    if "kernel_sigma" in params:
+        params["kernel_sigma"] = float(params["kernel_sigma"])
+    
+    # 制約手法のパラメータ
+    if "constraint_method" not in params:
+        params["constraint_method"] = "hard"
+    if "beta" in params:
+        params["beta"] = float(params["beta"])
+    if "learning_rate" in params:
+        params["learning_rate"] = float(params["learning_rate"])
+    if "alpha_init" in params:
+        params["alpha_init"] = float(params["alpha_init"])
+    if "alpha_final" in params:
+        params["alpha_final"] = float(params["alpha_final"])
+    if "confidence_weights" in params:
+        params["confidence_weights"] = np.array(params["confidence_weights"])
     
     return params
 
@@ -107,7 +123,7 @@ def main():
     start = max(center_n_clusters - 4, len(params["known_labels"]))
     end = center_n_clusters + 5
 
-    exp.add_tags(params["tags"])
+    exp.add_tags(params["tags"] + ["constraint_method"])
     exp.log_parameters({
         **params,
         "n_clusters_range": list(range(start, end))
@@ -129,15 +145,41 @@ def main():
     model.set_cols(
         categorical_columns=params["categorical_columns"]
     )
-    model.convert_to_kernel(params["kernel_sigma"])
+    kernel_sigma = params.get("kernel_sigma", None)
+    model.convert_to_kernel(kernel_sigma)
     
     score = ClusterIndex(with_label=True)
 
+    # 制約手法のパラメータを取得
+    constraint_method = params.get("constraint_method", "hard")
+    beta = params.get("beta", 0.8)
+    learning_rate = params.get("learning_rate", 0.2)
+    confidence_weights = params.get("confidence_weights", None)
+    alpha_init = params.get("alpha_init", None)
+    alpha_final = params.get("alpha_final", None)
     
+    logger.info(f"制約手法: {constraint_method}")
+    if constraint_method == "interpolation":
+        logger.info(f"  beta: {beta}")
+    elif constraint_method == "partial":
+        logger.info(f"  learning_rate: {learning_rate}")
+    elif constraint_method == "adaptive_alpha":
+        logger.info(f"  alpha_init: {alpha_init}, alpha_final: {alpha_final}")
 
     for n_clusters in range(start, end):
         logger.info(f"n_clusters: {n_clusters}")
-        predictions, membership = model.predict(n_clusters, params["alpha"], params["max_iter"], params["tol"])
+        predictions, membership = model.predict(
+            n_clusters, 
+            params["alpha"], 
+            params["max_iter"], 
+            params["tol"],
+            constraint_method=constraint_method,
+            beta=beta,
+            learning_rate=learning_rate,
+            confidence_weights=confidence_weights,
+            alpha_init=alpha_init,
+            alpha_final=alpha_final
+        )
 
         # logger.info(predictions)
         # logger.info(membership)

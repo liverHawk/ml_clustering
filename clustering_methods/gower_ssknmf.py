@@ -245,12 +245,13 @@ class SSKNMF:
             unlabeled_mask[labeled_indices] = False
         
         prev_err = None
+        max_iter = self.config.max_iter
         
-        for iteration in range(1, self.config.max_iter + 1):
+        for iteration in range(1, max_iter + 1):
             H_old = self.H_.copy()
             
-            # Hの更新
-            self._update_H(K, H_constraint, unlabeled_mask, labeled_indices)
+            # Hの更新（反復回数を渡す）
+            self._update_H(K, H_constraint, unlabeled_mask, labeled_indices, iteration, max_iter)
             
             # 再構成誤差の計算
             err = self._compute_reconstruction_error(K, H_constraint, labeled_indices)
@@ -280,7 +281,7 @@ class SSKNMF:
             
             prev_err = err
         
-        if iteration == self.config.max_iter and self.config.verbose:
+        if iteration == max_iter and self.config.verbose:
             logger.info("最大反復回数に達しました")
     
     def _update_H(
@@ -289,6 +290,8 @@ class SSKNMF:
         H_constraint: Optional[np.ndarray],
         unlabeled_mask: np.ndarray,
         labeled_indices: Optional[np.ndarray],
+        iteration: int = 1,
+        max_iter: int = 200,
     ):
         """H行列の更新
         
@@ -300,8 +303,19 @@ class SSKNMF:
             H_constraint: 制約行列
             unlabeled_mask: ラベルなしサンプルのマスク
             labeled_indices: ラベル付きサンプルのインデックス
+            iteration: 現在の反復回数
+            max_iter: 最大反復回数
         """
         assert self.H_ is not None, "H must be initialized"
+        
+        # 適応的alphaの計算（制約手法がadaptive_alphaの場合）
+        current_alpha = self.config.alpha
+        if self.config.constraint_method == 'adaptive_alpha':
+            alpha_init = self.config.alpha_init if self.config.alpha_init is not None else self.config.alpha
+            alpha_final = self.config.alpha_final if self.config.alpha_final is not None else self.config.alpha * 0.1
+            # 線形に減少
+            progress = (iteration - 1) / (max_iter - 1) if max_iter > 1 else 0.0
+            current_alpha = alpha_init * (1 - progress) + alpha_final * progress
         
         # 中間計算
         KH_T = K @ self.H_.T  # (n×k)
@@ -310,25 +324,92 @@ class SSKNMF:
         
         # 分子: (KH^T)^T + α * H_constraint
         numerator = KH_T.T  # (k×n)
-        if H_constraint is not None and self.config.alpha > 0:
-            numerator += self.config.alpha * H_constraint
+        if H_constraint is not None and current_alpha > 0:
+            numerator += current_alpha * H_constraint
         
         # 分母: HH^TKH^T + α * H
         denominator = HH_TKH_T  # (k×n)
-        if self.config.alpha > 0:
-            denominator += self.config.alpha * self.H_
+        if current_alpha > 0:
+            denominator += current_alpha * self.H_
         
         denominator = np.maximum(denominator, self.config.eps)
         
-        # ラベルなしサンプルのみ更新
-        self.H_[:, unlabeled_mask] = (
-            self.H_[:, unlabeled_mask] *
-            np.sqrt(numerator[:, unlabeled_mask] / denominator[:, unlabeled_mask])
-        )
+        # 全サンプルに対して更新式を計算
+        H_updated = self.H_ * np.sqrt(numerator / denominator)
         
-        # ラベル付きサンプルは制約で固定
+        # ラベルなしサンプルは常に更新
+        self.H_[:, unlabeled_mask] = H_updated[:, unlabeled_mask]
+        
+        # ラベル付きサンプルの更新方法を選択
         if labeled_indices is not None and H_constraint is not None:
-            self.H_[:, labeled_indices] = H_constraint[:, labeled_indices]
+            method = self.config.constraint_method.lower()
+            
+            if method == 'hard':
+                # 方法0: 完全固定（元の方法）
+                self.H_[:, labeled_indices] = H_constraint[:, labeled_indices]
+            
+            elif method == 'soft':
+                # 方法1: ソフト制約（更新式に制約項を含める）
+                self.H_[:, labeled_indices] = H_updated[:, labeled_indices]
+            
+            elif method == 'interpolation':
+                # 方法2: 重み付き混合
+                beta = self.config.beta
+                self.H_[:, labeled_indices] = (
+                    (1 - beta) * H_updated[:, labeled_indices] + 
+                    beta * H_constraint[:, labeled_indices]
+                )
+            
+            elif method == 'partial':
+                # 方法3: 部分的更新
+                lr = self.config.learning_rate
+                self.H_[:, labeled_indices] = (
+                    self.H_[:, labeled_indices] + 
+                    lr * (H_updated[:, labeled_indices] - self.H_[:, labeled_indices])
+                )
+            
+            elif method == 'relaxation':
+                # 方法4: 反復的な制約緩和
+                # 初期は強く（beta=1.0）、後期は緩和（beta=0.5）
+                progress = (iteration - 1) / (max_iter - 1) if max_iter > 1 else 0.0
+                beta = 1.0 * (1 - progress) + 0.5 * progress
+                self.H_[:, labeled_indices] = (
+                    (1 - beta) * H_updated[:, labeled_indices] + 
+                    beta * H_constraint[:, labeled_indices]
+                )
+            
+            elif method == 'confidence':
+                # 方法5: 信頼度ベースの制約
+                if self.config.confidence_weights is not None:
+                    # confidence_weightsは各ラベル付きサンプルに対する信頼度
+                    conf_weights = self.config.confidence_weights
+                    if len(conf_weights) != len(labeled_indices):
+                        raise ValueError(f"confidence_weights length {len(conf_weights)} must match labeled_indices length {len(labeled_indices)}")
+                    
+                    # 各サンプルに対して異なるbetaを適用
+                    for i, idx in enumerate(labeled_indices):
+                        beta_i = 1.0 - conf_weights[i]  # 信頼度が高いほどbetaが小さい（制約が弱い）
+                        self.H_[:, idx] = (
+                            (1 - beta_i) * H_updated[:, idx] + 
+                            beta_i * H_constraint[:, idx]
+                        )
+                else:
+                    # 信頼度が指定されていない場合は通常のinterpolationと同じ
+                    beta = self.config.beta
+                    self.H_[:, labeled_indices] = (
+                        (1 - beta) * H_updated[:, labeled_indices] + 
+                        beta * H_constraint[:, labeled_indices]
+                    )
+            
+            elif method == 'adaptive_alpha':
+                # 方法6: 制約項の重み調整（alphaは既に上で調整済み）
+                # ソフト制約として更新
+                self.H_[:, labeled_indices] = H_updated[:, labeled_indices]
+            
+            else:
+                # デフォルトはhard制約
+                logger.warning(f"Unknown constraint_method: {method}, using 'hard'")
+                self.H_[:, labeled_indices] = H_constraint[:, labeled_indices]
         
         # 非負性を保証
         self.H_ = np.maximum(self.H_, self.config.eps)
@@ -503,7 +584,7 @@ class GowerSSKNMF:
     def set_cols(self, categorical_columns: List[str]):
         self.categorical_cols = categorical_columns
 
-    def convert_to_kernel(self):
+    def convert_to_kernel(self, kernel_sigma: float = None):
         assert self.categorical_cols is not None
         
         # 除外する列を定義（存在する列のみ）
@@ -523,7 +604,8 @@ class GowerSSKNMF:
 
         kernel_matrix = gower_to_kernel(
             distance_matrix,
-            method="rbf"
+            method="rbf",
+            sigma=kernel_sigma,
         )
         assert np.all(kernel_matrix >= 0) and np.all(kernel_matrix <= 1)
 
@@ -532,14 +614,22 @@ class GowerSSKNMF:
     def get_kernel(self) -> np.ndarray:
         return self.kernel
 
-    def predict(self, n_clusters, alpha, max_iter, tol):
+    def predict(self, n_clusters, alpha, max_iter, tol, 
+                constraint_method='hard', beta=0.8, learning_rate=0.2,
+                confidence_weights=None, alpha_init=None, alpha_final=None):
         config = SSKNMFConfig(
             n_clusters=n_clusters,
             alpha=alpha,
             max_iter=max_iter,
             tol=tol,
             random_state=self.config.random_state,
-            verbose=self.config.debug
+            verbose=self.config.debug,
+            constraint_method=constraint_method,
+            beta=beta,
+            learning_rate=learning_rate,
+            confidence_weights=confidence_weights,
+            alpha_init=alpha_init,
+            alpha_final=alpha_final
         )
         model = SSKNMF(config)
         model.fit(self.kernel, self.labeled_indices, self.labels)

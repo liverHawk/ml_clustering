@@ -2,10 +2,29 @@ dataset: "CICIDS2017_flow_improved"
 n_samples_per_label: 100
 labeled_rate: 0.4
 random_state: 42
-n_clusters_range: [5, 6, 7, 8, 9, 10, 11, 12, 13]
+kernel_sigma: 0.5
 alpha: 0.2
 max_iter: 100
 tol: 1e-6
+
+# 制約手法の設定
+# 選択可能な手法:
+#   - "hard": 完全固定（元の方法）
+#   - "soft": ソフト制約（更新式に制約項を含める）
+#   - "interpolation": 重み付き混合（betaパラメータで制御）
+#   - "partial": 部分的更新（learning_rateパラメータで制御）
+#   - "relaxation": 反復的な制約緩和（初期は強く、後期は緩和）
+#   - "confidence": 信頼度ベースの制約（confidence_weightsが必要）
+#   - "adaptive_alpha": 制約項の重み調整（alpha_init, alpha_finalで制御）
+constraint_method: "hard"  # デフォルトは"hard"
+
+# 各手法のパラメータ（手法に応じて使用）
+beta: 0.8  # interpolation, relaxation, confidenceで使用
+learning_rate: 0.2  # partialで使用
+alpha_init: null  # adaptive_alphaで使用（nullの場合はalphaを使用）
+alpha_final: null  # adaptive_alphaで使用（nullの場合はalpha * 0.1を使用）
+# confidence_weights: [1.0, 0.9, 0.8, ...]  # confidenceで使用（各ラベル付きサンプルの信頼度）
+
 use_labels: 
   - "Heartbleed"
   - "Infiltration"
@@ -18,9 +37,13 @@ use_labels:
   - "Web Attack"
 known_labels: 
   - "DoS"
+  - "Web Attack"
   - "FTP-Patator"
+  - "SSH-Patator"
   - "Bot"
 categorical_columns: 
   - "Src Port"
   - "Dst Port"
   - "Protocol"
+tags:
+  - "labels"
