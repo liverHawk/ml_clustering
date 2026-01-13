@@ -557,7 +557,7 @@ class GowerSSKNMF:
         # ----- unlabeled_samples -----
 
         df_combined = pl.concat([
-            no_labeled_samples,
+            # no_labeled_samples,
             labeled_samples,
             unknown_samples
         ])
@@ -584,7 +584,7 @@ class GowerSSKNMF:
     def set_cols(self, categorical_columns: List[str]):
         self.categorical_cols = categorical_columns
 
-    def convert_to_kernel(self, kernel_sigma: float = None):
+    def convert_to_kernel(self, kernel_method: str = "rbf", kernel_sigma: float = None):
         assert self.categorical_cols is not None
         
         # 除外する列を定義（存在する列のみ）
@@ -604,7 +604,7 @@ class GowerSSKNMF:
 
         kernel_matrix = gower_to_kernel(
             distance_matrix,
-            method="rbf",
+            method=kernel_method,
             sigma=kernel_sigma,
         )
         assert np.all(kernel_matrix >= 0) and np.all(kernel_matrix <= 1)

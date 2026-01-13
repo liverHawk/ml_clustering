@@ -146,7 +146,8 @@ def main():
         categorical_columns=params["categorical_columns"]
     )
     kernel_sigma = params.get("kernel_sigma", None)
-    model.convert_to_kernel(kernel_sigma)
+    kernel_method = params.get("kernel_method", "rbf")
+    model.convert_to_kernel(kernel_method=kernel_method, kernel_sigma=kernel_sigma)
     
     score = ClusterIndex(with_label=True)
 
