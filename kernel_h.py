@@ -60,6 +60,31 @@ def load_params():
     if "confidence_weights" in params and params["confidence_weights"] is not None:
         params["confidence_weights"] = np.array(params["confidence_weights"])
     
+    # リスト型のパラメータを正規化（文字列の場合はリストに変換）
+    if "known_labels" in params:
+        if isinstance(params["known_labels"], str):
+            params["known_labels"] = [params["known_labels"]]
+        elif not isinstance(params["known_labels"], list):
+            params["known_labels"] = list(params["known_labels"])
+    
+    if "use_labels" in params:
+        if isinstance(params["use_labels"], str):
+            params["use_labels"] = [params["use_labels"]]
+        elif not isinstance(params["use_labels"], list):
+            params["use_labels"] = list(params["use_labels"])
+    
+    if "categorical_columns" in params:
+        if isinstance(params["categorical_columns"], str):
+            params["categorical_columns"] = [params["categorical_columns"]]
+        elif not isinstance(params["categorical_columns"], list):
+            params["categorical_columns"] = list(params["categorical_columns"])
+    
+    if "tags" in params:
+        if isinstance(params["tags"], str):
+            params["tags"] = [params["tags"]]
+        elif not isinstance(params["tags"], list):
+            params["tags"] = list(params["tags"])
+    
     return params
 
 
@@ -124,7 +149,7 @@ def main():
     params = load_params()
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
-    start = max(center_n_clusters - 4, len(params["known_labels"]), 1)
+    start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
 
     exp.add_tags(params["tags"] + ["constraint_method"])
@@ -206,25 +231,40 @@ def main():
             "true_labels": model.df_setup["Label"].to_list(),
         })
 
-        _plot_confusion_matrix(evaluation, save_path, n_clusters)
+        # _plot_confusion_matrix(evaluation, save_path, n_clusters)
 
-        score.add(
-            n_clusters,
-            evaluation["kernel"].to_numpy(),
-            evaluation["predictions"].to_numpy(),
-            evaluation["true_labels"].to_numpy(),
+        # 既知ラベルが固定されたクラスタIDを取得（0からlen(known_labels)-1まで）
+        known_cluster_ids = list(range(len(params["known_labels"])))
+        
+        # 既知ラベルが固定されたクラスタに割り当てられたデータを除外
+        evaluation_filtered = evaluation.filter(
+            ~pl.col("predictions").is_in(known_cluster_ids)
         )
+        
+        logger.info(f"既知ラベル固定クラスタ ({known_cluster_ids}) のデータを除外: "
+                   f"全データ数={len(evaluation)}, 評価対象データ数={len(evaluation_filtered)}")
+        
+        # 除外後のデータで評価指標を計算
+        if len(evaluation_filtered) > 0:
+            score.add(
+                n_clusters,
+                evaluation_filtered["kernel"].to_numpy(),
+                evaluation_filtered["predictions"].to_numpy(),
+                evaluation_filtered["true_labels"].to_numpy(),
+            )
+        else:
+            logger.warning(f"n_clusters={n_clusters}: 評価対象データが0件のため、評価指標をスキップします")
         exp.log_metrics(score.get_results(n_clusters), step=n_clusters)
 
-    score.plot(
-        path=save_path / "kernel_class_",
-        separate_plots=False
-    )
-    score.save_data(
-        path=save_path
-    )
-    for file in save_path.glob("*.png"):
-        exp.log_image(file)
+    # score.plot(
+    #     path=save_path / "kernel_class_",
+    #     separate_plots=False
+    # )
+    # score.save_data(
+    #     path=save_path
+    # )
+    # for file in save_path.glob("*.png"):
+    #     exp.log_image(file)
 
 
 if __name__ == "__main__":

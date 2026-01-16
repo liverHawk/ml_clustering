@@ -35,19 +35,16 @@ numerical_weight: 1.0    # 数値変数の重み（デフォルト: 1.0）
 use_labels:
 - Heartbleed
 - Infiltration
-# - Bot
-# - DoS
+- Bot
+- DoS
 - DDoS
-# - SSH-Patator
+- SSH-Patator
 - PortScan
-# - FTP-Patator
-# - Web Attack
-known_labels: []
-# - DoS
-# - Web Attack
-# - FTP-Patator
-# - Bot
-# - SSH-Patator
+- FTP-Patator
+- Web Attack
+known_labels:
+- DoS
+- Web Attack
 categorical_columns:
 - Src Port
 - Dst Port
