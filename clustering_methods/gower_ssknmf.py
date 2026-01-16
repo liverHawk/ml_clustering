@@ -32,6 +32,8 @@ def gower_distance_vectorized(
     df: pl.DataFrame,
     categorical_cols: List[str],
     numerical_cols: List[str],
+    categorical_weight: float = 1.0,
+    numerical_weight: float = 1.0,
 ) -> np.ndarray:
     """ベクトル化されたGower距離計算
     
@@ -42,6 +44,8 @@ def gower_distance_vectorized(
         df: Polars DataFrame
         categorical_cols: カテゴリ変数のカラム名リスト
         numerical_cols: 数値変数のカラム名リスト
+        categorical_weight: カテゴリ変数の重み（デフォルト: 1.0）
+        numerical_weight: 数値変数の重み（デフォルト: 1.0）
     
     Returns:
         Gower距離行列 (n×n)
@@ -51,7 +55,9 @@ def gower_distance_vectorized(
         メモリ: O(n²)
     """
     n = len(df)
-    n_features = len(categorical_cols) + len(numerical_cols)
+    n_cat = len(categorical_cols)
+    n_num = len(numerical_cols)
+    n_features = n_cat + n_num
     
     if n_features == 0:
         raise ValueError("At least one feature column must be specified")
@@ -68,6 +74,7 @@ def gower_distance_vectorized(
             num_dist += np.abs(
                 num_data[:, None, k] - num_data[None, :, k]
             ) / ranges[k]
+        num_dist *= numerical_weight
     
     # カテゴリ変数の距離計算
     cat_dist = np.zeros((n, n))
@@ -77,9 +84,14 @@ def gower_distance_vectorized(
         # ブロードキャスト: (n,1,f) != (1,n,f) → (n,n,f)
         for k in range(len(categorical_cols)):
             cat_dist += (cat_data[:, None, k] != cat_data[None, :, k]).astype(float)
+        cat_dist *= categorical_weight
     
-    # Gower距離 = (数値距離 + カテゴリ距離) / 特徴量数
-    return (num_dist + cat_dist) / n_features
+    # 重み付き正規化
+    total_weight = n_cat * categorical_weight + n_num * numerical_weight
+    if total_weight == 0:
+        raise ValueError("Total weight must be greater than 0")
+    
+    return (num_dist + cat_dist) / total_weight
 
 
 def gower_to_kernel(
@@ -498,6 +510,7 @@ class GowerSSKNMF:
         self.all_labels = self.df_original["Label"].unique().to_list()
         self.use_labels = None
         self.known_labels = None
+        self.use_known_no_labeled = False
 
         self.categorical_cols = None
 
@@ -505,6 +518,10 @@ class GowerSSKNMF:
         self.labeled_indices = None
         self.labels = None
         self.kernel = None
+        
+        # 特徴量の重み（デフォルト値）
+        self.categorical_weight = 1.0
+        self.numerical_weight = 1.0
 
     def _setup(self):
         use_labels = [label for label in self.use_labels if label in self.all_labels]
@@ -519,51 +536,96 @@ class GowerSSKNMF:
         # logger.info(f"df_unknown: {df_unknown.shape}")
 
         # =============== known ====================
-        df_sample = df_known.group_by("Label", maintain_order=True).map_groups(
-            lambda group: group.sample(n=self.config.n_samples_per_label, seed=42)
-        )
-        # logger.info(f"df_sample: {df_sample.shape}")
+        # known_labelsが空の場合は、ラベル付きサンプルなしで処理
+        if len(self.known_labels) == 0 or len(df_known) == 0:
+            # ラベル付きサンプルなしの場合
+            label_encoded_dtype = pl.Int32  # デフォルトの型
+            # スキーマをコピーしてlabel_encoded列を追加
+            schema_dict = dict(df.schema)
+            schema_dict["label_encoded"] = label_encoded_dtype
+            labeled_samples = pl.DataFrame(schema=schema_dict)
+            no_labeled_samples = pl.DataFrame(schema=schema_dict)
+            _labeled_indices = []
+            labels = []
+            logger.info("known_labelsが空のため、ラベル付きサンプルなしで処理します")
+        else:
+            df_sample = df_known.group_by("Label", maintain_order=True).map_groups(
+                lambda group: group.sample(n=self.config.n_samples_per_label, seed=42)
+            )
+            # logger.info(f"df_sample: {df_sample.shape}")
 
-        labeled_samples = df_sample.group_by("Label", maintain_order=True).map_groups(
-            lambda group: group.sample(n=int(self.config.n_samples_per_label * self.config.labeled_rate), seed=42)
-        )
-        # logger.info(f"labeled_indices: len: {len(labeled_indices)}")
+            labeled_samples = df_sample.group_by("Label", maintain_order=True).map_groups(
+                lambda group: group.sample(n=int(self.config.n_samples_per_label * self.config.labeled_rate), seed=42)
+            )
+            # logger.info(f"labeled_indices: len: {len(labeled_indices)}")
 
-        label_mapping = {label: i for i, label in enumerate(self.known_labels)}
-        logger.info(f"label_mapping: {label_mapping}")
-        labeled_samples = labeled_samples.with_columns(
-            pl.col("Label").replace(label_mapping).alias("label_encoded")
-        )
-        _labeled_indices = labeled_samples["index"].to_list()
-        label_encoded_dtype = labeled_samples["label_encoded"].dtype
-        # logger.info(labeled_samples["label_encoded"].head(3))
-        # logger.info(labeled_samples[['Label', 'label_encoded']].group_by("Label").head(3))
-        labels = labeled_samples["label_encoded"].to_list()
+            label_mapping = {label: i for i, label in enumerate(self.known_labels)}
+            logger.info(f"label_mapping: {label_mapping}")
+            labeled_samples = labeled_samples.with_columns(
+                pl.col("Label").replace(label_mapping).alias("label_encoded")
+            )
+            _labeled_indices = labeled_samples["index"].to_list()
+            label_encoded_dtype = labeled_samples["label_encoded"].dtype
+            # logger.info(labeled_samples["label_encoded"].head(3))
+            # logger.info(labeled_samples[['Label', 'label_encoded']].group_by("Label").head(3))
+            labels = labeled_samples["label_encoded"].to_list()
 
-        no_labeled_samples = df_sample.filter(~pl.col("index").is_in(_labeled_indices))
-        no_labeled_samples = no_labeled_samples.with_columns(
-            pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
-        )
+            no_labeled_samples = df_sample.filter(~pl.col("index").is_in(_labeled_indices))
+            # label_encoded_dtypeが数値型の場合は-1、文字列型の場合は"-1"を使用
+            if label_encoded_dtype in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64]:
+                no_labeled_samples = no_labeled_samples.with_columns(
+                    pl.lit(-1).cast(label_encoded_dtype).alias("label_encoded")
+                )
+            else:
+                no_labeled_samples = no_labeled_samples.with_columns(
+                    pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
+                )
 
         # ----- labeled_indices and labels -----
 
         # ================= unknown ====================
-        unknown_samples = df_unknown.group_by("Label", maintain_order=True).map_groups(
-            lambda group: group.sample(n=min(self.config.n_samples_per_label, len(group)), seed=42)
-        )
-        unknown_samples = unknown_samples.with_columns(
-            pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
-        )
+        if len(df_unknown) > 0:
+            unknown_samples = df_unknown.group_by("Label", maintain_order=True).map_groups(
+                lambda group: group.sample(n=min(self.config.n_samples_per_label, len(group)), seed=42)
+            )
+            # label_encoded_dtypeが数値型の場合は-1、文字列型の場合は"-1"を使用
+            if label_encoded_dtype in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64]:
+                unknown_samples = unknown_samples.with_columns(
+                    pl.lit(-1).cast(label_encoded_dtype).alias("label_encoded")
+                )
+            else:
+                unknown_samples = unknown_samples.with_columns(
+                    pl.lit("-1").cast(label_encoded_dtype).alias("label_encoded")
+                )
+        else:
+            # 空のDataFrameを作成（label_encoded列を含む）
+            # スキーマをコピーしてlabel_encoded列を追加
+            schema_dict = dict(df.schema)
+            schema_dict["label_encoded"] = label_encoded_dtype
+            unknown_samples = pl.DataFrame(schema=schema_dict)
         # ----- unlabeled_samples -----
 
-        df_combined = pl.concat([
-            # no_labeled_samples,
-            labeled_samples,
-            unknown_samples
-        ])
+        # データフレームの結合
+        dfs_to_concat = []
+        if self.use_known_no_labeled and len(no_labeled_samples) > 0:
+            dfs_to_concat.append(no_labeled_samples)
+        if len(labeled_samples) > 0:
+            dfs_to_concat.append(labeled_samples)
+        if len(unknown_samples) > 0:
+            dfs_to_concat.append(unknown_samples)
+        
+        if len(dfs_to_concat) > 0:
+            df_combined = pl.concat(dfs_to_concat)
+        else:
+            raise ValueError("結合するデータフレームがありません。use_labelsとknown_labelsの設定を確認してください。")
         df_combined = df_combined.drop("index").with_row_index("index")
 
-        labeled = df_combined.filter(pl.col("label_encoded") != "-1")
+        # label_encodedの型に応じて比較値を変更
+        # 数値型の場合は-1、文字列型の場合は"-1"
+        if label_encoded_dtype in [pl.Int8, pl.Int16, pl.Int32, pl.Int64, pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64]:
+            labeled = df_combined.filter(pl.col("label_encoded") != -1)
+        else:
+            labeled = df_combined.filter(pl.col("label_encoded") != "-1")
         labeled_indices = labeled["index"].to_list()
         labels = labeled["label_encoded"].to_list()
 
@@ -575,14 +637,31 @@ class GowerSSKNMF:
     def get_columns(self) -> List[str]:
         return self.df_original.columns.to_list()
     
-    def set_labels(self, use_labels: List[str], known_labels: List[str]):
+    def set_labels(self, use_labels: List[str], known_labels: List[str], use_known_no_labeled: bool = False):
         self.use_labels = use_labels
         self.known_labels = known_labels
-
+        self.use_known_no_labeled = use_known_no_labeled
+        
         self.df_setup, self.labeled_indices, self.labels = self._setup()
 
     def set_cols(self, categorical_columns: List[str]):
         self.categorical_cols = categorical_columns
+    
+    def set_feature_weights(
+        self, 
+        categorical_weight: float = 1.0,
+        numerical_weight: float = 1.0
+    ):
+        """特徴量の重みを設定
+        
+        Args:
+            categorical_weight: カテゴリ変数の重み（大きいほど重要）
+            numerical_weight: 数値変数の重み
+        """
+        if categorical_weight < 0 or numerical_weight < 0:
+            raise ValueError("Weights must be non-negative")
+        self.categorical_weight = categorical_weight
+        self.numerical_weight = numerical_weight
 
     def convert_to_kernel(self, kernel_method: str = "rbf", kernel_sigma: float = None):
         assert self.categorical_cols is not None
@@ -599,7 +678,9 @@ class GowerSSKNMF:
         distance_matrix = gower_distance_vectorized(
             self.df_setup.drop(cols_to_drop),
             self.categorical_cols,
-            numerical_cols
+            numerical_cols,
+            categorical_weight=self.categorical_weight,
+            numerical_weight=self.numerical_weight
         )
 
         kernel_matrix = gower_to_kernel(

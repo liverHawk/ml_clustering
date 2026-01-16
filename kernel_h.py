@@ -41,6 +41,10 @@ def load_params():
         params["max_iter"] = int(params["max_iter"])
     if "kernel_sigma" in params:
         params["kernel_sigma"] = float(params["kernel_sigma"])
+    if "categorical_weight" in params:
+        params["categorical_weight"] = float(params["categorical_weight"])
+    if "numerical_weight" in params:
+        params["numerical_weight"] = float(params["numerical_weight"])
     
     # 制約手法のパラメータ
     if "constraint_method" not in params:
@@ -120,7 +124,7 @@ def main():
     params = load_params()
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
-    start = max(center_n_clusters - 4, len(params["known_labels"]))
+    start = max(center_n_clusters - 4, len(params["known_labels"]), 1)
     end = center_n_clusters + 5
 
     exp.add_tags(params["tags"] + ["constraint_method"])
@@ -140,11 +144,22 @@ def main():
     logger.info(model.get_labels())
     model.set_labels(
         use_labels=params["use_labels"],
-        known_labels=params["known_labels"]
+        known_labels=params["known_labels"],
+        use_known_no_labeled=params["use_known_no_labeled"]
     )
     model.set_cols(
         categorical_columns=params["categorical_columns"]
     )
+    
+    # 特徴量の重みを設定
+    categorical_weight = params.get("categorical_weight", 1.0)
+    numerical_weight = params.get("numerical_weight", 1.0)
+    model.set_feature_weights(
+        categorical_weight=categorical_weight,
+        numerical_weight=numerical_weight
+    )
+    logger.info(f"特徴量の重み: categorical_weight={categorical_weight}, numerical_weight={numerical_weight}")
+    
     kernel_sigma = params.get("kernel_sigma", None)
     kernel_method = params.get("kernel_method", "rbf")
     model.convert_to_kernel(kernel_method=kernel_method, kernel_sigma=kernel_sigma)
