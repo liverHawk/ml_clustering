@@ -39,11 +39,16 @@ def _plot_scores(
             plt.savefig(f'{path}{score}.png')
             plt.close()
     else:
-        # 1枚の図の中に3つのサブプロットを作成 (3行1列)
-        fig, axes = plt.subplots(3, 1, figsize=(10, 15))
+        # 1枚の図の中に複数のサブプロットを作成 (score_listの数に応じて動的に変更)
+        n_scores = len(score_list)
+        fig, axes = plt.subplots(n_scores, 1, figsize=(10, 5 * n_scores))
         fig.subplots_adjust(hspace=0.4)  # グラフ間の上下の隙間を調整
 
         cmap = plt.get_cmap('tab20')
+        
+        # axesが1次元配列でない場合（指標が1つの場合）の処理
+        if n_scores == 1:
+            axes = [axes]
 
         for idx, score in enumerate(score_list):
             y_values = [
@@ -118,6 +123,30 @@ class ClusterIndex:
         )
         self.results[n_clusters]["wb_index"] = n_clusters * ssw / ssb
 
+    def _cluster_accuracy(self, label, y):
+        """
+        クラスタリングのaccuracyを計算
+        各クラスタに最も多い真のラベルを割り当ててからaccuracyを計算
+        """
+        # クラスタIDと真のラベルのペアを作成
+        cluster_to_label = {}
+        for cluster_id in np.unique(y):
+            # このクラスタに属するサンプルの真のラベルを取得
+            mask = y == cluster_id
+            cluster_labels = label[mask]
+            # 最も多いラベルをこのクラスタの予測ラベルとする
+            # np.uniqueは文字列ラベルにも対応
+            unique_labels, counts = np.unique(cluster_labels, return_counts=True)
+            most_common_label = unique_labels[np.argmax(counts)]
+            cluster_to_label[cluster_id] = most_common_label
+        
+        # クラスタラベルを真のラベルにマッピング
+        y_mapped = np.array([cluster_to_label[cluster_id] for cluster_id in y])
+        
+        # accuracyを計算
+        accuracy = metrics.accuracy_score(label, y_mapped)
+        return accuracy
+
     def add(self, n_clusters, x, y, label, kmeans: KMeans = None):
         self._common_add(n_clusters, x, y)
         # self._wb_index(n_clusters, x, y, kmeans)
@@ -128,11 +157,15 @@ class ClusterIndex:
         ari = metrics.adjusted_rand_score(label, y)
         nmi = metrics.normalized_mutual_info_score(label, y)
         fmi = metrics.fowlkes_mallows_score(label, y)
+        
+        # Accuracy
+        accuracy = self._cluster_accuracy(label, y)
 
         self.results_with_label[n_clusters] = {
             "ARI": ari,
             "NMI": nmi,
-            "FMI": fmi
+            "FMI": fmi,
+            "accuracy": accuracy
         }
     
     def get_results(self, n_clusters):
@@ -153,7 +186,7 @@ class ClusterIndex:
             os.makedirs(
                 os.path.dirname(path), exist_ok=True
             )
-        _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI"], path, separate_plots)
+        _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI", "accuracy"], path, separate_plots)
 
     def plot(self, path="", separate_plots=False):
         path = str(path)

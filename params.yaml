@@ -51,4 +51,5 @@ categorical_columns:
 - Protocol
 tags:
 - labels
+- compare_labels
 use_known_no_labeled: false

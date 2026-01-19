@@ -550,12 +550,12 @@ class GowerSSKNMF:
             logger.info("known_labelsが空のため、ラベル付きサンプルなしで処理します")
         else:
             df_sample = df_known.group_by("Label", maintain_order=True).map_groups(
-                lambda group: group.sample(n=self.config.n_samples_per_label, seed=42)
+                lambda group: group.sample(n=min(self.config.n_samples_per_label, len(group)), seed=42)
             )
             # logger.info(f"df_sample: {df_sample.shape}")
 
             labeled_samples = df_sample.group_by("Label", maintain_order=True).map_groups(
-                lambda group: group.sample(n=int(self.config.n_samples_per_label * self.config.labeled_rate), seed=42)
+                lambda group: group.sample(n=min(int(self.config.n_samples_per_label * self.config.labeled_rate), len(group)), seed=42)
             )
             # logger.info(f"labeled_indices: len: {len(labeled_indices)}")
 
