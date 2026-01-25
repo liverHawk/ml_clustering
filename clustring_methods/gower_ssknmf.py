@@ -451,6 +451,7 @@ class GowerSSKNMF:
         self.kernel_method = kernel_method
         self.kernel_sigma = kernel_sigma
         self.distance_matrix_: Optional[np.ndarray] = None
+        self.df_setup: Optional[pl.DataFrame] = None
         
         config = SSKNMFConfig(
             n_clusters=n_clusters,
@@ -552,3 +553,28 @@ class GowerSSKNMF:
             各反復での再構成誤差のリスト
         """
         return self.model.get_reconstruction_errors()
+    
+    def convert_to_kernel(self):
+        """距離行列をカーネル行列に変換
+        
+        このメソッドは、df_setupからLabelカラムを除外して
+        Gower距離を計算し、カーネル行列に変換します。
+        """
+        # label_encodedカラムを除外（Labelカラムは存在しない）
+        df_features = self.df_setup.drop("label_encoded")
+        
+        distance_matrix = gower_distance_vectorized(
+            df_features,
+            self.categorical_cols,
+            self.numerical_cols
+        )
+        
+        # カーネル変換
+        K = gower_to_kernel(
+            distance_matrix,
+            method=self.kernel_method,
+            sigma=self.kernel_sigma,
+        )
+        
+        self.distance_matrix_ = distance_matrix
+        return K
