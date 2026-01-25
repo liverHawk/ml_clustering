@@ -1,0 +1,13 @@
+schema: '2.0'
+stages:
+  run:
+    cmd: uv run kernel_h.py
+    deps:
+    - path: kernel_h.py
+      hash: md5
+      md5: 35091af873f87a5d32fabcf559d0e6ee
+      size: 10402
+    - path: params.yaml
+      hash: md5
+      md5: 55b9ba8a940fd89febf69768dcb155a8
+      size: 1873

@@ -2,6 +2,7 @@ import sklearn.metrics as metrics
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import polars as pl
 
 from sklearn.cluster import KMeans
 
@@ -119,7 +120,7 @@ class ClusterIndex:
 
     def add(self, n_clusters, x, y, label, kmeans: KMeans = None):
         self._common_add(n_clusters, x, y)
-        self._wb_index(n_clusters, x, y, kmeans)
+        # self._wb_index(n_clusters, x, y, kmeans)
 
         if not self.with_label:
             return
@@ -132,6 +133,12 @@ class ClusterIndex:
             "ARI": ari,
             "NMI": nmi,
             "FMI": fmi
+        }
+    
+    def get_results(self, n_clusters):
+        return {
+            **self.results[n_clusters],
+            **(self.results_with_label[n_clusters] if self.with_label else {})
         }
 
     def _normal_plot(self, path="", separate_plots=False):
@@ -149,6 +156,18 @@ class ClusterIndex:
         _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI"], path, separate_plots)
 
     def plot(self, path="", separate_plots=False):
+        path = str(path)
         self._normal_plot(path, separate_plots)
         if self.with_label:
             self._plot_with_label(path + "label_", separate_plots)
+    
+    def save_data(self, path=""):
+        os.makedirs(path, exist_ok=True)
+        with open(f'{path}/results.csv', 'w') as f:
+            f.write('n_clusters,' + ','.join(list(self.results[list(self.results.keys())[0]].keys())) + '\n')
+            for n_clusters in self.results.keys():
+                f.write(f'{n_clusters},' + ','.join(str(self.results[n_clusters][k]) for k in list(self.results[n_clusters].keys())) + '\n')
+        with open(f'{path}/results_with_label.csv', 'w') as f:
+            f.write('n_clusters,' + ','.join(list(self.results_with_label[list(self.results_with_label.keys())[0]].keys())) + '\n')
+            for n_clusters in self.results_with_label.keys():
+                f.write(f'{n_clusters},' + ','.join(str(self.results_with_label[n_clusters][k]) for k in list(self.results_with_label[n_clusters].keys())) + '\n')

@@ -219,7 +219,7 @@ class SSNMFDKL(SSNMFKL):
         Args:
             X: Data matrix
         """
-        from clustring_methods.utils.graph import build_laplacian
+        from clustering_methods.utils.graph import build_laplacian
 
         self.A, self.D, self.L = build_laplacian(X, self.n_neighbors)
 

@@ -5,7 +5,7 @@ The configuration hierarchy follows the class hierarchy to maintain consistency.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 import numpy as np
 
 
@@ -104,6 +104,20 @@ class SSKNMFConfig:
         random_state: Random seed for reproducibility (default: 42)
         verbose: Whether to print progress information (default: False)
         eps: Small value for numerical stability (default: 1e-10)
+        constraint_method: Method for handling labeled samples (default: 'hard')
+            - 'hard': Hard constraint (completely fixed, original method)
+            - 'soft': Soft constraint (update with constraint term)
+            - 'interpolation': Weighted interpolation between update and constraint
+            - 'partial': Partial update with learning rate
+            - 'relaxation': Iterative constraint relaxation
+            - 'confidence': Confidence-based constraint
+            - 'adaptive_alpha': Adaptive alpha adjustment
+        beta: Weight for interpolation method (default: 0.8)
+        learning_rate: Learning rate for partial update method (default: 0.2)
+        confidence_weights: Confidence weights for each labeled sample (default: None)
+                            If None, all samples have confidence 1.0
+        alpha_init: Initial alpha for adaptive_alpha method (default: None, uses alpha)
+        alpha_final: Final alpha for adaptive_alpha method (default: None, uses alpha * 0.1)
     """
     n_clusters: int
     alpha: float = 0.1
@@ -112,6 +126,12 @@ class SSKNMFConfig:
     random_state: int = 42
     verbose: bool = False
     eps: float = 1e-10
+    constraint_method: str = 'hard'
+    beta: float = 0.8
+    learning_rate: float = 0.2
+    confidence_weights: Optional[np.ndarray] = None
+    alpha_init: Optional[float] = None
+    alpha_final: Optional[float] = None
 
 
 # Convenience factory functions for creating configurations
@@ -227,3 +247,24 @@ def create_ssnmfd_config(
         gamma=gamma,
         n_neighbors=n_neighbors,
     )
+
+@dataclass
+class GowerSSKNMFConfig:
+    """
+    Attributes:
+        base_path: Base path to the dataset
+        dataset_name: Name of the dataset
+        use_labels: Labels to use for clustering
+        known_labels: Labels to use for selecting known data
+        n_samples_per_label: Number of samples per label
+        labeled_rate: Rate of selecting labeled data (of known data per label)
+
+    """
+    base_path: str
+    dataset_name: str
+
+    n_samples_per_label: int
+    labeled_rate: float
+
+    random_state: int = 42
+    debug: bool = False

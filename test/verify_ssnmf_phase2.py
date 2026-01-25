@@ -8,11 +8,11 @@ import numpy as np
 import sys
 from pathlib import Path
 
-# Add clustring_methods to path
+# Add clustering_methods to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from clustring_methods.configs import create_kl_config
-from clustring_methods.ssnmf_kl_refactored import SSNMFKL
+from clustering_methods.configs import create_kl_config
+from clustering_methods.ssnmf_kl_refactored import SSNMFKL
 
 
 def test_unlabeled_kl_nmf():
@@ -216,8 +216,8 @@ def test_kl_vs_frobenius():
     print("TEST 5: KL vs Frobenius Comparison")
     print("=" * 60)
 
-    from clustring_methods.ssnmf_refactored import SSNMFFrobenius
-    from clustring_methods.configs import create_frobenius_config
+    from clustering_methods.ssnmf_refactored import SSNMFFrobenius
+    from clustering_methods.configs import create_frobenius_config
 
     np.random.seed(42)
     n, m, k = 20, 30, 5
