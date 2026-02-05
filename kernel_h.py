@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from clustering_methods.configs import GowerSSKNMFConfig
 from clustering_methods import GowerSSKNMF
 from lib.cluster_index import ClusterIndex
-
+from dataset.utils import load_dataset
 
 import yaml
 import argparse
@@ -45,6 +45,8 @@ def load_params():
         params["categorical_weight"] = float(params["categorical_weight"])
     if "numerical_weight" in params:
         params["numerical_weight"] = float(params["numerical_weight"])
+    if "normalize_numerical" in params and params["normalize_numerical"] is not None:
+        params["normalize_numerical"] = str(params["normalize_numerical"]).strip().lower()
     
     # 制約手法のパラメータ
     if "constraint_method" not in params:
@@ -148,7 +150,12 @@ def main():
     # args = load_args()
     params = load_params()
 
+    df_original, metadata = load_dataset(params["dataset"], debug=False)
+    n_clusters = df_original["Label"].n_unique()
+
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
+    if center_n_clusters == 0:
+        center_n_clusters = n_clusters
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
 
@@ -159,7 +166,7 @@ def main():
     })
 
     config = GowerSSKNMFConfig(
-        base_path="/home/toshi/Documents/dataset/project/cleaned",
+        base_path="/home/hawk/Documents/school/dataset/project/cleaned",
         dataset_name=params["dataset"],
         n_samples_per_label=params["n_samples_per_label"],
         labeled_rate=params["labeled_rate"],
@@ -184,6 +191,10 @@ def main():
         numerical_weight=numerical_weight
     )
     logger.info(f"特徴量の重み: categorical_weight={categorical_weight}, numerical_weight={numerical_weight}")
+    
+    normalize_numerical = params.get("normalize_numerical", "none")
+    model.set_normalize_numerical(normalize_numerical)
+    logger.info(f"Gower距離計算前の数値列正規化: {normalize_numerical}")
     
     kernel_sigma = params.get("kernel_sigma", None)
     kernel_method = params.get("kernel_method", "rbf")

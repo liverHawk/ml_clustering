@@ -28,6 +28,51 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+def normalize_numerical_columns(
+    df: pl.DataFrame,
+    numerical_cols: List[str],
+    method: str,
+) -> pl.DataFrame:
+    """Gower距離計算前に数値列のみ正規化する。
+
+    categorical_columns は正規化せず、numerical_cols で指定した列のみ対象とする。
+
+    Args:
+        df: Polars DataFrame（数値列・カテゴリ列を含む）
+        numerical_cols: 正規化対象の列名リスト（categorical_columns 以外の数値列）
+        method: 正規化方法
+            - "minmax": 列ごとに [0, 1] にスケール（(x - min) / (max - min)）
+            - "standard": 列ごとに z-score（(x - mean) / std）
+
+    Returns:
+        数値列のみ正規化した新しい DataFrame（カテゴリ列はそのまま）
+    """
+    if not numerical_cols or method not in ("minmax", "standard"):
+        return df
+
+    other_cols = [c for c in df.columns if c not in numerical_cols]
+    num_df = df.select(numerical_cols)
+    num_arr = num_df.to_numpy()
+
+    if method == "minmax":
+        min_ = num_arr.min(axis=0)
+        ptp = np.ptp(num_arr, axis=0)
+        ptp[ptp == 0] = 1
+        normalized = (num_arr - min_) / ptp
+    else:  # standard
+        mean_ = num_arr.mean(axis=0)
+        std_ = num_arr.std(axis=0)
+        std_[std_ == 0] = 1
+        normalized = (num_arr - mean_) / std_
+
+    normalized_df = pl.DataFrame({
+        col: normalized[:, i] for i, col in enumerate(numerical_cols)
+    })
+    if other_cols:
+        return pl.concat([df.select(other_cols), normalized_df], how="horizontal")
+    return normalized_df
+
+
 def gower_distance_vectorized(
     df: pl.DataFrame,
     categorical_cols: List[str],
@@ -522,9 +567,31 @@ class GowerSSKNMF:
         # 特徴量の重み（デフォルト値）
         self.categorical_weight = 1.0
         self.numerical_weight = 1.0
+        # Gower距離計算前の数値列正規化（"none" | "minmax" | "standard"）
+        self.normalize_numerical = "none"
+
+    def set_normalize_numerical(self, method: str = "none"):
+        """Gower距離計算前に数値列を正規化する方法を指定する。
+
+        categorical_columns は正規化の対象外。それ以外の数値列のみ正規化する。
+
+        Args:
+            method: 正規化方法
+                - "none": 正規化しない（Gower距離内の範囲正規化のみ）
+                - "minmax": 列ごとに [0, 1] にスケール
+                - "standard": 列ごとに z-score
+        """
+        if method not in ("none", "minmax", "standard"):
+            raise ValueError(
+                f"normalize_numerical must be one of 'none', 'minmax', 'standard', got {method!r}"
+            )
+        self.normalize_numerical = method
 
     def _setup(self):
-        use_labels = [label for label in self.use_labels if label in self.all_labels]
+        if len(self.use_labels) > 0:
+            use_labels = [label for label in self.use_labels if label in self.all_labels]
+        else:
+            use_labels = self.all_labels
         df: pl.DataFrame = self.df_original.filter(pl.col("Label").is_in(use_labels))
         # logger.info(f"use labels: {use_labels}(len: {len(use_labels)})")
 
@@ -670,13 +737,24 @@ class GowerSSKNMF:
         exclude_cols = ["index", "Label", "label_encoded"]
         cols_to_drop = [col for col in exclude_cols if col in self.df_setup.columns]
         
+        # categorical_columns 以外を数値列として扱う
         numerical_cols = [
             col for col in self.df_setup.columns 
             if col not in self.categorical_cols + cols_to_drop
         ]
 
+        df_for_gower = self.df_setup.drop(cols_to_drop)
+        # 正規化するのは categorical_columns 以外（数値列のみ）
+        if self.normalize_numerical in ("minmax", "standard") and numerical_cols:
+            df_for_gower = normalize_numerical_columns(
+                df_for_gower,
+                numerical_cols,
+                self.normalize_numerical,
+            )
+            logger.info(f"数値列のみ正規化しました（categorical 除く）: method={self.normalize_numerical}")
+
         distance_matrix = gower_distance_vectorized(
-            self.df_setup.drop(cols_to_drop),
+            df_for_gower,
             self.categorical_cols,
             numerical_cols,
             categorical_weight=self.categorical_weight,
