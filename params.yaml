@@ -32,19 +32,25 @@ alpha_final:       # adaptive_alphaで使用（nullの場合はalpha * 0.1を使
 categorical_weight: 2.0  # カテゴリ変数の重み（デフォルト: 1.0）
 numerical_weight: 1.0    # 数値変数の重み（デフォルト: 1.0）
 
-use_labels:
-- Heartbleed
-- Infiltration
-- Bot
-- DoS
-- DDoS
-- SSH-Patator
-- PortScan
-- FTP-Patator
-- Web Attack
+# Gower距離計算前の正規化（categorical_columns 以外の数値列のみ対象）
+# 選択肢: "none"（正規化しない）, "minmax"（列ごとに[0,1]）, "standard"（列ごとにz-score）
+normalize_numerical: none  # デフォルト: none
+
+use_labels: []
+# - Heartbleed
+# - Infiltration
+# - Bot
+# - DoS
+# - DDoS
+# - SSH-Patator
+# - PortScan
+# - FTP-Patator
+# - Web Attack
+# - DoS
+# - DDoS
 known_labels:
 - DoS
-- Web Attack
+- DDoS
 categorical_columns:
 - Src Port
 - Dst Port
