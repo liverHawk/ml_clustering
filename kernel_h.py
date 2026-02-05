@@ -1,12 +1,14 @@
 import comet_ml
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from clustering_methods.configs import GowerSSKNMFConfig
 from clustering_methods import GowerSSKNMF
 from lib.cluster_index import ClusterIndex
 from dataset.utils import load_dataset
+from lib.experiment_db import ClusterResult, Experiment, get_session
 
 import yaml
 import argparse
@@ -16,6 +18,7 @@ import polars as pl
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -201,7 +204,7 @@ def main():
     model.convert_to_kernel(kernel_method=kernel_method, kernel_sigma=kernel_sigma)
     
     score = ClusterIndex(with_label=True)
-
+    
     # 制約手法のパラメータを取得
     constraint_method = params.get("constraint_method", "hard")
     beta = params.get("beta", 0.8)
@@ -218,54 +221,97 @@ def main():
     elif constraint_method == "adaptive_alpha":
         logger.info(f"  alpha_init: {alpha_init}, alpha_final: {alpha_final}")
 
-    for n_clusters in range(start, end):
-        logger.info(f"n_clusters: {n_clusters}")
-        predictions, membership = model.predict(
-            n_clusters, 
-            params["alpha"], 
-            params["max_iter"], 
-            params["tol"],
+    # DB セッションと Experiment レコードの作成
+    session = get_session()
+    try:
+        try:
+            comet_key = exp.get_key()
+        except Exception:
+            comet_key = None
+
+        experiment = Experiment(
+            dataset_name=params["dataset"],
             constraint_method=constraint_method,
-            beta=beta,
-            learning_rate=learning_rate,
-            confidence_weights=confidence_weights,
-            alpha_init=alpha_init,
-            alpha_final=alpha_final
+            kernel_method=kernel_method,
+            tags=json.dumps(params.get("tags", []), ensure_ascii=False),
+            params_json=json.dumps(params, default=str, ensure_ascii=False),
+            n_clusters_start=start,
+            n_clusters_end=end - 1,
+            comet_experiment_key=comet_key,
         )
+        session.add(experiment)
+        session.flush()  # experiment.id を取得する
 
-        # logger.info(predictions)
-        # logger.info(membership)
-
-        evaluation = pl.DataFrame({
-            "kernel": model.kernel,
-            "predictions": predictions,
-            "true_labels": model.df_setup["Label"].to_list(),
-        })
-
-        # _plot_confusion_matrix(evaluation, save_path, n_clusters)
-
-        # 既知ラベルが固定されたクラスタIDを取得（0からlen(known_labels)-1まで）
-        known_cluster_ids = list(range(len(params["known_labels"])))
-        
-        # 既知ラベルが固定されたクラスタに割り当てられたデータを除外
-        evaluation_filtered = evaluation.filter(
-            ~pl.col("predictions").is_in(known_cluster_ids)
-        )
-        
-        logger.info(f"既知ラベル固定クラスタ ({known_cluster_ids}) のデータを除外: "
-                   f"全データ数={len(evaluation)}, 評価対象データ数={len(evaluation_filtered)}")
-        
-        # 除外後のデータで評価指標を計算
-        if len(evaluation_filtered) > 0:
-            score.add(
-                n_clusters,
-                evaluation_filtered["kernel"].to_numpy(),
-                evaluation_filtered["predictions"].to_numpy(),
-                evaluation_filtered["true_labels"].to_numpy(),
+        for n_clusters in range(start, end):
+            logger.info(f"n_clusters: {n_clusters}")
+            predictions, membership = model.predict(
+                n_clusters, 
+                params["alpha"], 
+                params["max_iter"], 
+                params["tol"],
+                constraint_method=constraint_method,
+                beta=beta,
+                learning_rate=learning_rate,
+                confidence_weights=confidence_weights,
+                alpha_init=alpha_init,
+                alpha_final=alpha_final
             )
-        else:
-            logger.warning(f"n_clusters={n_clusters}: 評価対象データが0件のため、評価指標をスキップします")
-        exp.log_metrics(score.get_results(n_clusters), step=n_clusters)
+
+            # logger.info(predictions)
+            # logger.info(membership)
+
+            evaluation = pl.DataFrame({
+                "kernel": model.kernel,
+                "predictions": predictions,
+                "true_labels": model.df_setup["Label"].to_list(),
+            })
+
+            # _plot_confusion_matrix(evaluation, save_path, n_clusters)
+
+            # 既知ラベルが固定されたクラスタIDを取得（0からlen(known_labels)-1まで）
+            known_cluster_ids = list(range(len(params["known_labels"])))
+            
+            # 既知ラベルが固定されたクラスタに割り当てられたデータを除外
+            evaluation_filtered = evaluation.filter(
+                ~pl.col("predictions").is_in(known_cluster_ids)
+            )
+            
+            logger.info(
+                f"既知ラベル固定クラスタ ({known_cluster_ids}) のデータを除外: "
+                f"全データ数={len(evaluation)}, 評価対象データ数={len(evaluation_filtered)}"
+            )
+            
+            # 除外後のデータで評価指標を計算
+            if len(evaluation_filtered) > 0:
+                score.add(
+                    n_clusters,
+                    evaluation_filtered["kernel"].to_numpy(),
+                    evaluation_filtered["predictions"].to_numpy(),
+                    evaluation_filtered["true_labels"].to_numpy(),
+                )
+
+                metrics = score.get_results(n_clusters)
+                exp.log_metrics(metrics, step=n_clusters)
+
+                result = ClusterResult(
+                    experiment_id=experiment.id,
+                    n_clusters=n_clusters,
+                    silhouette_score=metrics.get("silhouette_score"),
+                    ch_score=metrics.get("ch_score"),
+                    db_score=metrics.get("db_score"),
+                    ARI=metrics.get("ARI"),
+                    NMI=metrics.get("NMI"),
+                    FMI=metrics.get("FMI"),
+                )
+                session.add(result)
+            else:
+                logger.warning(
+                    f"n_clusters={n_clusters}: 評価対象データが0件のため、評価指標をスキップします"
+                )
+
+        session.commit()
+    finally:
+        session.close()
 
     # score.plot(
     #     path=save_path / "kernel_class_",

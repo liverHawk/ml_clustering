@@ -1,0 +1,413 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.18.4"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "e2f1342a8137dad3c259a1e83f79a5ae",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "c0b67cb7b5c11608781964c9f9dbe37c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-progress data-title='&quot;Loading CSV files&quot;' data-total='5' data-progress='5' data-rate='4829.92' data-eta='0.0'></marimo-progress></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "zWhL",
+      "code_hash": "da59c65075664f3e313e0ac96f49483e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='zWhL-0' random-id='ab3e3d1b-26a7-a3c0-b13e-71c2a7e412e8'><marimo-dropdown data-initial-value='[&quot;label&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Encoding Method&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;one-hot&quot;,&quot;label&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false'></marimo-dropdown></marimo-ui-element><marimo-ui-element object-id='zWhL-1' random-id='48dcdadb-05cb-e761-c669-20b7dada516d'><marimo-dropdown data-initial-value='[&quot;minmax&quot;]' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Normalization Method&lt;/span&gt;&lt;/span&gt;&quot;' data-options='[&quot;z-score&quot;,&quot;minmax&quot;,&quot;robust&quot;,&quot;none&quot;]' data-allow-select-none='false' data-searchable='false' data-full-width='false'></marimo-dropdown></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "6cb2439e886e710502b424366b3288ac",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "a93f654c5d53101518bb64ca9060eda5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "3ad0f6bd36e4742fd92b363884c404e3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='lEQa-0' random-id='237d9fd2-bdec-d807-d209-3860a26a3a30'><marimo-multiselect data-initial-value='[]' data-label='null' data-options='[&quot;DoS&quot;,&quot;Infiltration&quot;,&quot;PortScan&quot;,&quot;DDoS&quot;,&quot;FTP-Patator&quot;,&quot;Bot&quot;,&quot;SSH-Patator&quot;,&quot;Heartbleed&quot;,&quot;Web Attack&quot;]' data-full-width='false'></marimo-multiselect></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "ca557967e9012df118f8ad248414c555",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Select labels: ['DoS', 'Infiltration', 'PortScan', 'DDoS', 'FTP-Patator', 'Bot', 'SSH-Patator', 'Heartbleed', 'Web Attack']</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "600fe08d8ebed097ca648ec698adfe60",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='PKri-0' random-id='c0fc2abd-f794-c7c4-b33b-4f8da6abfffc'><marimo-multiselect data-initial-value='[]' data-label='null' data-options='[&quot;Infiltration&quot;,&quot;PortScan&quot;,&quot;DDoS&quot;,&quot;Bot&quot;,&quot;Web Attack&quot;,&quot;DoS&quot;,&quot;FTP-Patator&quot;,&quot;SSH-Patator&quot;,&quot;Heartbleed&quot;]' data-full-width='false'></marimo-multiselect></marimo-ui-element><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">Selected known labels: ['PortScan', 'Web Attack', 'FTP-Patator', 'SSH-Patator']</span></span><marimo-ui-element object-id='Xref-0' random-id='d2771421-f418-4167-12f5-eb92a00a708f'><marimo-number data-initial-value='5' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Number of samples to show&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-stop='100' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "1d5cbbc976c968748fd797760b19cdb7",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='SFPL-0' random-id='a2048445-1b73-46a2-73df-fb613201698d'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;click to run&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "c9aa79c3e1e72ebba15db9027938c061",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "fb0d8a6aa7349e96a429e2d1e9b8adb9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "0666774614bc82e627f3e384db01d3ae",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "618f6966819b85d7fba8e616bfa03921",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: row;justify-content: space-between;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-ui-element object-id='emfo-0' random-id='9c87b5a2-d6b7-eaaa-57de-6d0509a03d73'><marimo-number data-initial-value='0.5' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Alpha parameter&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0.0' data-stop='1.0' data-step='0.1' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element><marimo-ui-element object-id='emfo-1' random-id='11a0251f-89ae-77bd-e80e-167fb646c88e'><marimo-number data-initial-value='200' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Max iterations&lt;/span&gt;&lt;/span&gt;&quot;' data-start='10' data-stop='1000' data-step='10' data-debounce='false' data-full-width='false' data-disabled='false'></marimo-number></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "17880b8ce87519779d14881d660ee499",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-progress data-title='&quot;SSNMF fitting&quot;' data-total='5' data-progress='5' data-rate='0.41806915012442886'></marimo-progress></div>"
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "selected_index counts: shape: (5, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 selected_index \u2506 count  \u2502\n\u2502 ---            \u2506 ---    \u2502\n\u2502 i64            \u2506 u32    \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 -1             \u2506 166152 \u2502\n\u2502 2              \u2506 2      \u2502\n\u2502 1              \u2506 2      \u2502\n\u2502 3              \u2506 2      \u2502\n\u2502 4              \u2506 2      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nNumber of labeled samples: 8\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=7636206960012.011719, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=178372153406.153656, rel=9.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=178094537251.339264, rel=1.56e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=177840776548.623688, rel=1.42e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=177612641706.805115, rel=1.28e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=177410821401.724670, rel=1.14e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=177234929911.471405, rel=9.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=177083711933.428192, rel=8.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=176955284722.882721, rel=7.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=176847378675.912994, rel=6.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=176757549157.971436, rel=5.08e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=176683345065.977936, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=176622430278.662048, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=176572661469.942657, rel=2.82e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=176532129725.464691, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=176499174726.308868, rel=1.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=176472379868.242401, rel=1.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=176450555389.675201, rel=1.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=176432714980.133575, rel=1.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=176418049794.871552, rel=8.31e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Clusters with valid labels: 3\nHigh confidence unlabeled: 31, Selected: 12\nselected_index counts: shape: (5, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 selected_index \u2506 count  \u2502\n\u2502 ---            \u2506 ---    \u2502\n\u2502 i64            \u2506 u32    \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 1              \u2506 3      \u2502\n\u2502 2              \u2506 12     \u2502\n\u2502 3              \u2506 2      \u2502\n\u2502 4              \u2506 3      \u2502\n\u2502 -1             \u2506 166140 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nNumber of labeled samples: 20\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=7636172938674.973633, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=178374734566.304901, rel=9.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=178097118643.131195, rel=1.56e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=177843357980.518280, rel=1.42e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=177615223082.051270, rel=1.28e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=177413402655.408661, rel=1.14e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=177237511004.361053, rel=9.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=177086292846.299438, rel=8.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=176957865451.347656, rel=7.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=176849959225.899597, rel=6.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=176760129541.973724, rel=5.08e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=176685925300.117706, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=176625010380.520020, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=176575241457.061340, rel=2.82e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=176534709614.395996, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=176501754532.077118, rel=1.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=176474959604.104126, rel=1.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=176453135067.079010, rel=1.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=176435294608.803925, rel=1.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=176420629382.962189, rel=8.31e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Clusters with valid labels: 3\nHigh confidence unlabeled: 31, Selected: 0\nselected_index counts: shape: (5, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 selected_index \u2506 count  \u2502\n\u2502 ---            \u2506 ---    \u2502\n\u2502 i64            \u2506 u32    \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 1              \u2506 3      \u2502\n\u2502 2              \u2506 12     \u2502\n\u2502 -1             \u2506 166140 \u2502\n\u2502 4              \u2506 3      \u2502\n\u2502 3              \u2506 2      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nNumber of labeled samples: 20\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=7636172938674.973633, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=178374734566.304901, rel=9.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=178097118643.131195, rel=1.56e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=177843357980.518280, rel=1.42e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=177615223082.051270, rel=1.28e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=177413402655.408661, rel=1.14e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=177237511004.361053, rel=9.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=177086292846.299438, rel=8.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=176957865451.347656, rel=7.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=176849959225.899597, rel=6.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=176760129541.973724, rel=5.08e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=176685925300.117706, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=176625010380.520020, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=176575241457.061340, rel=2.82e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=176534709614.395996, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=176501754532.077118, rel=1.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=176474959604.104126, rel=1.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=176453135067.079010, rel=1.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=176435294608.803925, rel=1.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=176420629382.962189, rel=8.31e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Clusters with valid labels: 3\nHigh confidence unlabeled: 31, Selected: 0\nselected_index counts: shape: (5, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 selected_index \u2506 count  \u2502\n\u2502 ---            \u2506 ---    \u2502\n\u2502 i64            \u2506 u32    \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 3              \u2506 2      \u2502\n\u2502 4              \u2506 3      \u2502\n\u2502 -1             \u2506 166140 \u2502\n\u2502 1              \u2506 3      \u2502\n\u2502 2              \u2506 12     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nNumber of labeled samples: 20\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=7636172938674.973633, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=178374734566.304901, rel=9.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=178097118643.131195, rel=1.56e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=177843357980.518280, rel=1.42e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=177615223082.051270, rel=1.28e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=177413402655.408661, rel=1.14e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=177237511004.361053, rel=9.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=177086292846.299438, rel=8.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=176957865451.347656, rel=7.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=176849959225.899597, rel=6.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=176760129541.973724, rel=5.08e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=176685925300.117706, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=176625010380.520020, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=176575241457.061340, rel=2.82e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=176534709614.395996, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=176501754532.077118, rel=1.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=176474959604.104126, rel=1.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=176453135067.079010, rel=1.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=176435294608.803925, rel=1.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=176420629382.962189, rel=8.31e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Clusters with valid labels: 3\nHigh confidence unlabeled: 31, Selected: 0\nselected_index counts: shape: (5, 2)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 selected_index \u2506 count  \u2502\n\u2502 ---            \u2506 ---    \u2502\n\u2502 i64            \u2506 u32    \u2502\n\u255e\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u256a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2561\n\u2502 4              \u2506 3      \u2502\n\u2502 -1             \u2506 166140 \u2502\n\u2502 2              \u2506 12     \u2502\n\u2502 1              \u2506 3      \u2502\n\u2502 3              \u2506 2      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\nNumber of labeled samples: 20\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=7636172938674.973633, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=178374734566.304901, rel=9.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=178097118643.131195, rel=1.56e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=177843357980.518280, rel=1.42e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=177615223082.051270, rel=1.28e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=177413402655.408661, rel=1.14e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=177237511004.361053, rel=9.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=177086292846.299438, rel=8.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=176957865451.347656, rel=7.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=176849959225.899597, rel=6.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=176760129541.973724, rel=5.08e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=176685925300.117706, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=176625010380.520020, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=176575241457.061340, rel=2.82e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=176534709614.395996, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=176501754532.077118, rel=1.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=176474959604.104126, rel=1.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=176453135067.079010, rel=1.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=176435294608.803925, rel=1.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=176420629382.962189, rel=8.31e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Clusters with valid labels: 3\nHigh confidence unlabeled: 31, Selected: 0\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "51ed2537fa4c993ad1f8941435e19e89",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='nWHF-0' random-id='75d8b354-0636-1675-24f3-9ec431ee90f5'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert contents&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;click to run&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "95a526deb1589cc34eef1c9a0a1ee31c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "a07f2c63cfc0791affac88f60950a629",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "a928f1950bab76e31a0f0b394a6562ca",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stdout",
+          "text": "Final SSNMF (Semi-supervised): 8 labeled samples out of 87\n",
+          "mimetype": "text/plain"
+        },
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=4939776439.853487, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=10860533.634056, rel=9.98e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=10753162.086844, rel=9.89e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=10668200.751516, rel=7.90e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=10600909.760872, rel=6.31e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=10547362.091772, rel=5.05e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=10504468.551071, rel=4.07e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=10469849.807854, rel=3.30e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=10441685.178561, rel=2.69e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=10418580.814213, rel=2.21e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=10399465.727321, rel=1.83e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=10383512.900004, rel=1.53e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=10370080.238729, rel=1.29e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=10358666.490046, rel=1.10e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=10348878.240182, rel=9.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=10340405.095693, rel=8.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=10333000.916614, rel=7.16e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=10326469.548731, rel=6.32e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=10320653.918748, rel=5.63e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=10315427.657085, rel=5.06e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 021: err=10310688.630635, rel=4.59e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 022: err=10306353.926113, rel=4.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 023: err=10302355.940429, rel=3.88e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 024: err=10298639.319859, rel=3.61e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 025: err=10295158.553005, rel=3.38e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 026: err=10291876.069559, rel=3.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 027: err=10288760.732147, rel=3.03e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 028: err=10285786.634962, rel=2.89e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 029: err=10282932.142870, rel=2.78e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 030: err=10280179.119819, rel=2.68e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 031: err=10277512.306872, rel=2.59e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 032: err=10274918.818996, rel=2.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 033: err=10272387.736474, rel=2.46e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 034: err=10269909.771993, rel=2.41e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 035: err=10267476.998500, rel=2.37e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 036: err=10265082.626001, rel=2.33e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 037: err=10262720.817937, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 038: err=10260386.539657, rel=2.27e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 039: err=10258075.433012, rel=2.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 040: err=10255783.712258, rel=2.23e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 041: err=10253508.077410, rel=2.22e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 042: err=10251245.641918, rel=2.21e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 043: err=10248993.872128, rel=2.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 044: err=10246750.536475, rel=2.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 045: err=10244513.662718, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 046: err=10242281.501861, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 047: err=10240052.497618, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 048: err=10237825.260511, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 049: err=10235598.545833, rel=2.17e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 050: err=10233371.234852, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 051: err=10231142.318735, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 052: err=10228910.884762, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 053: err=10226676.104470, rel=2.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 054: err=10224437.223431, rel=2.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 055: err=10222193.552420, rel=2.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 056: err=10219944.459756, rel=2.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 057: err=10217689.364646, rel=2.21e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 058: err=10215427.731385, rel=2.21e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 059: err=10213159.064298, rel=2.22e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 060: err=10210882.903297, rel=2.23e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 061: err=10208598.819997, rel=2.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 062: err=10206306.414282, rel=2.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 063: err=10204005.311290, rel=2.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 064: err=10201695.158738, rel=2.26e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 065: err=10199375.624559, rel=2.27e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 066: err=10197046.394797, rel=2.28e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 067: err=10194707.171740, rel=2.29e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 068: err=10192357.672252, rel=2.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 069: err=10189997.626284, rel=2.32e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 070: err=10187626.775538, rel=2.33e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 071: err=10185244.872276, rel=2.34e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 072: err=10182851.678245, rel=2.35e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 073: err=10180446.963706, rel=2.36e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 074: err=10178030.506571, rel=2.37e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 075: err=10175602.091610, rel=2.39e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 076: err=10173161.509743, rel=2.40e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 077: err=10170708.557399, rel=2.41e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 078: err=10168243.035928, rel=2.42e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 079: err=10165764.751075, rel=2.44e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 080: err=10163273.512495, rel=2.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 081: err=10160769.133322, rel=2.46e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 082: err=10158251.429762, rel=2.48e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 083: err=10155720.220734, rel=2.49e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 084: err=10153175.327536, rel=2.51e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 085: err=10150616.573542, rel=2.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 086: err=10148043.783924, rel=2.53e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 087: err=10145456.785396, rel=2.55e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 088: err=10142855.405985, rel=2.56e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 089: err=10140239.474830, rel=2.58e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 090: err=10137608.821931, rel=2.59e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 091: err=10134963.278029, rel=2.61e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 092: err=10132302.674420, rel=2.63e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 093: err=10129626.842799, rel=2.64e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 094: err=10126935.615120, rel=2.66e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 095: err=10124228.823468, rel=2.67e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 096: err=10121506.299937, rel=2.69e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 097: err=10118767.876520, rel=2.71e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 098: err=10116013.385007, rel=2.72e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 099: err=10113242.656891, rel=2.74e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 100: err=10110455.523279, rel=2.76e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 101: err=10107651.814817, rel=2.77e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 102: err=10104831.361590, rel=2.79e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 103: err=10101993.993083, rel=2.81e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 104: err=10099139.538100, rel=2.83e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 105: err=10096267.824707, rel=2.84e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 106: err=10093378.680171, rel=2.86e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 107: err=10090471.930911, rel=2.88e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 108: err=10087547.402446, rel=2.90e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 109: err=10084604.919346, rel=2.92e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 110: err=10081644.305191, rel=2.94e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 111: err=10078665.382530, rel=2.95e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 112: err=10075667.972836, rel=2.97e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 113: err=10072651.896475, rel=2.99e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 114: err=10069616.972678, rel=3.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 115: err=10066563.019485, rel=3.03e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 116: err=10063489.853712, rel=3.05e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 117: err=10060397.290946, rel=3.07e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 118: err=10057285.145502, rel=3.09e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 119: err=10054153.230395, rel=3.11e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 120: err=10051001.357310, rel=3.13e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 121: err=10047829.336577, rel=3.16e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 122: err=10044636.977146, rel=3.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 123: err=10041424.086558, rel=3.20e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 124: err=10038190.470922, rel=3.22e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 125: err=10034935.934895, rel=3.24e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 126: err=10031660.281653, rel=3.26e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 127: err=10028363.312869, rel=3.29e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 128: err=10025044.828694, rel=3.31e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 129: err=10021704.627733, rel=3.33e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 130: err=10018342.507023, rel=3.35e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 131: err=10014958.262014, rel=3.38e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 132: err=10011551.686548, rel=3.40e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 133: err=10008122.572840, rel=3.43e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 134: err=10004670.711457, rel=3.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 135: err=10001195.891304, rel=3.47e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 136: err=9997697.899604, rel=3.50e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 137: err=9994176.521883, rel=3.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 138: err=9990631.541953, rel=3.55e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 139: err=9987062.741900, rel=3.57e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 140: err=9983469.902070, rel=3.60e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 141: err=9979852.801060, rel=3.62e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 142: err=9976211.215705, rel=3.65e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 143: err=9972544.921071, rel=3.68e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 144: err=9968853.690452, rel=3.70e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 145: err=9965137.295360, rel=3.73e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 146: err=9961395.505531, rel=3.75e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 147: err=9957628.088922, rel=3.78e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 148: err=9953834.811715, rel=3.81e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 149: err=9950015.438325, rel=3.84e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 150: err=9946169.731412, rel=3.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 151: err=9942297.451893, rel=3.89e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 152: err=9938398.358962, rel=3.92e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 153: err=9934472.210113, rel=3.95e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 154: err=9930518.761167, rel=3.98e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 155: err=9926537.766303, rel=4.01e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 156: err=9922528.978100, rel=4.04e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 157: err=9918492.147577, rel=4.07e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 158: err=9914427.024245, rel=4.10e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 159: err=9910333.356164, rel=4.13e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 160: err=9906210.890004, rel=4.16e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 161: err=9902059.371121, rel=4.19e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 162: err=9897878.543631, rel=4.22e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 163: err=9893668.150501, rel=4.25e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 164: err=9889427.933647, rel=4.29e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 165: err=9885157.634032, rel=4.32e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 166: err=9880856.991791, rel=4.35e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 167: err=9876525.746352, rel=4.38e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 168: err=9872163.636571, rel=4.42e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 169: err=9867770.400883, rel=4.45e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 170: err=9863345.777459, rel=4.48e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 171: err=9858889.504378, rel=4.52e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 172: err=9854401.319813, rel=4.55e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 173: err=9849880.962223, rel=4.59e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 174: err=9845328.170566, rel=4.62e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 175: err=9840742.684524, rel=4.66e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 176: err=9836124.244736, rel=4.69e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 177: err=9831472.593057, rel=4.73e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 178: err=9826787.472819, rel=4.77e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 179: err=9822068.629114, rel=4.80e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 180: err=9817315.809092, rel=4.84e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 181: err=9812528.762273, rel=4.88e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 182: err=9807707.240870, rel=4.91e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 183: err=9802851.000140, rel=4.95e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 184: err=9797959.798733, rel=4.99e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 185: err=9793033.399070, rel=5.03e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 186: err=9788071.567728, rel=5.07e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 187: err=9783074.075846, rel=5.11e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 188: err=9778040.699541, rel=5.14e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 189: err=9772971.220336, rel=5.18e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 190: err=9767865.425609, rel=5.22e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 191: err=9762723.109046, rel=5.26e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 192: err=9757544.071114, rel=5.30e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 193: err=9752328.119537, rel=5.35e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 194: err=9747075.069790, rel=5.39e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 195: err=9741784.745597, rel=5.43e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 196: err=9736456.979436, rel=5.47e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 197: err=9731091.613057, rel=5.51e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 198: err=9725688.497997, rel=5.55e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 199: err=9720247.496105, rel=5.59e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 200: err=9714768.480065, rel=5.64e-04\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "7d8206bff47762f429b1781fb8fa49d4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "e33a57720f0c950b6bd6fe0ceffbe825",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "1fdb1ecf7420c702b84de6c39a3a7144",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "DnEU",
+      "code_hash": "daed0be208bd878041b9a69e904e992b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>array([[6, 1, 0, 0, 0, 0, 0, 1, 2],\n       [2, 2, 0, 0, 3, 0, 0, 1, 2],\n       [7, 0, 0, 0, 0, 0, 0, 2, 1],\n       [6, 0, 0, 0, 0, 0, 1, 2, 1],\n       [2, 1, 0, 0, 0, 0, 0, 5, 2],\n       [1, 1, 0, 0, 1, 0, 0, 3, 4],\n       [5, 0, 1, 0, 0, 0, 0, 2, 2],\n       [4, 0, 0, 0, 0, 0, 0, 3, 0],\n       [5, 0, 0, 0, 0, 0, 1, 2, 2]])</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ulZA",
+      "code_hash": "3bab8b5855dc84096345c742808af203",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ecfG",
+      "code_hash": "dccaeae2c4a6cf91ac78bba129819eb5",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">['DoS', 'Infiltration', 'PortScan', 'DDoS', 'FTP-Patator', 'Bot', 'SSH-Patator', 'Heartbleed', 'Web Attack']</span></span><marimo-ui-element object-id='ecfG-0' random-id='7de47d9c-ed25-9e47-8200-25b1be285af2'><marimo-vega data-initial-value='{}' data-label='null' data-spec='{&quot;config&quot;:{&quot;view&quot;:{&quot;continuousWidth&quot;:300,&quot;continuousHeight&quot;:300}},&quot;layer&quot;:[{&quot;mark&quot;:{&quot;type&quot;:&quot;rect&quot;},&quot;encoding&quot;:{&quot;color&quot;:{&quot;field&quot;:&quot;Count&quot;,&quot;scale&quot;:{&quot;scheme&quot;:&quot;blues&quot;},&quot;title&quot;:&quot;\u4ef6\u6570&quot;,&quot;type&quot;:&quot;quantitative&quot;},&quot;tooltip&quot;:[{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},{&quot;field&quot;:&quot;Count&quot;,&quot;title&quot;:&quot;\u4ef6\u6570&quot;,&quot;type&quot;:&quot;quantitative&quot;}],&quot;x&quot;:{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},&quot;y&quot;:{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;}}},{&quot;mark&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;baseline&quot;:&quot;middle&quot;,&quot;fontSize&quot;:11},&quot;encoding&quot;:{&quot;color&quot;:{&quot;condition&quot;:{&quot;test&quot;:&quot;(datum.Count &gt; 100)&quot;,&quot;value&quot;:&quot;white&quot;},&quot;value&quot;:&quot;black&quot;},&quot;text&quot;:{&quot;field&quot;:&quot;Count&quot;,&quot;format&quot;:&quot;.0f&quot;,&quot;type&quot;:&quot;quantitative&quot;},&quot;x&quot;:{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},&quot;y&quot;:{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;}}}],&quot;data&quot;:{&quot;url&quot;:&quot;./@file/5002-98600-cfcTPkKh.arrow&quot;,&quot;format&quot;:{&quot;type&quot;:&quot;arrow&quot;}},&quot;height&quot;:500,&quot;title&quot;:&quot;\u6df7\u540c\u884c\u5217\u30d2\u30fc\u30c8\u30de\u30c3\u30d7: [&#x27;FTP-Patator&#x27;, &#x27;PortScan&#x27;, &#x27;SSH-Patator&#x27;, &#x27;Web_Attack&#x27;]&quot;,&quot;width&quot;:500,&quot;&#36;schema&quot;:&quot;https://vega.github.io/schema/vega-lite/v6.1.0.json&quot;}' data-chart-selection='true' data-field-selection='true' data-embed-options='{}'></marimo-vega></marimo-ui-element></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Pvdt",
+      "code_hash": null,
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}

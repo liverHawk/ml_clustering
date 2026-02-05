@@ -1,0 +1,282 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.18.4"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "7e9297bfe5609cc89ee99edbeb3df1c3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "c0b67cb7b5c11608781964c9f9dbe37c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><marimo-progress data-title='&quot;Loading CSV files&quot;' data-total='5' data-progress='5' data-rate='5981.61' data-eta='0.0'></marimo-progress></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "bfddfc518c5fb5ecb5e0ccba3426d2a1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/markdown": "<span class=\"markdown prose dark:prose-invert contents\"><span class=\"paragraph\">encode: label, normalize: minmax</span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "3cbe3bd89b998fe8dbc5692b084ffbef",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "07c610c1379506c6445f1fc78f80cfcb",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "45d0b976b94c2ed5249eb82d2e622173",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "fb0d8a6aa7349e96a429e2d1e9b8adb9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "0666774614bc82e627f3e384db01d3ae",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "68a77fbfb30f349f4b6529c07b73e298",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "32cee8fe1760ea89c12787318980df0b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>&lt;clustring_methods.ssnmf_refactored.SSNMFFrobenius object at 0x7deb18da3130&gt;</pre>"
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=24596825613645.820312, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=230089078163.578674, rel=9.91e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=230044254566.353149, rel=1.95e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=230010043328.722992, rel=1.49e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=229983148535.653564, rel=1.17e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=229961549598.581390, rel=9.39e-05\nINFO:clustring_methods.ssnmf_refactored:Converged.\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "2e360b9a9011333d53b7e5e27f9a7e25",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "98df33b895afd7c9efedb2d2ae9bfc60",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bYrN",
+      "code_hash": "633953b493773f7dcd882ea53ed48395",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "INFO:clustring_methods.ssnmf_refactored:Iter 001: err=50161634038502.125000, rel=inf\nINFO:clustring_methods.ssnmf_refactored:Iter 002: err=300370411583.349731, rel=9.94e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 003: err=300138728546.020752, rel=7.71e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 004: err=299891635553.739441, rel=8.23e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 005: err=299623501683.681641, rel=8.94e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 006: err=299327623866.068054, rel=9.87e-04\nINFO:clustring_methods.ssnmf_refactored:Iter 007: err=298995496181.582031, rel=1.11e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 008: err=298615874494.293091, rel=1.27e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 009: err=298173309582.922241, rel=1.48e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 010: err=297645935424.760010, rel=1.77e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 011: err=297002136299.091736, rel=2.16e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 012: err=296195516996.738953, rel=2.72e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 013: err=295157743900.221924, rel=3.50e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 014: err=293788024124.274353, rel=4.64e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 015: err=291939024170.475403, rel=6.29e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 016: err=289398805479.578491, rel=8.70e-03\nINFO:clustring_methods.ssnmf_refactored:Iter 017: err=285845211779.728455, rel=1.23e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 018: err=280719951196.002563, rel=1.79e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 019: err=273020608292.398163, rel=2.74e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 020: err=261095490336.950012, rel=4.37e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 021: err=242808377218.488495, rel=7.00e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 022: err=216922821033.010437, rel=1.07e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 023: err=185570679422.011017, rel=1.45e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 024: err=153867879828.680725, rel=1.71e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 025: err=125756849137.392212, rel=1.83e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 026: err=102465546792.738007, rel=1.85e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 027: err=83753369652.852219, rel=1.83e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 028: err=68918002446.943481, rel=1.77e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 029: err=57206811367.452904, rel=1.70e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 030: err=47959072397.144836, rel=1.62e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 031: err=40635605447.935272, rel=1.53e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 032: err=34806813057.252846, rel=1.43e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 033: err=30132926531.183647, rel=1.34e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 034: err=26346335042.319950, rel=1.26e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 035: err=23239021510.263275, rel=1.18e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 036: err=20654079116.310604, rel=1.11e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 037: err=18476490975.947533, rel=1.05e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 038: err=16622451097.828835, rel=1.00e-01\nINFO:clustring_methods.ssnmf_refactored:Iter 039: err=15029746250.134243, rel=9.58e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 040: err=13650811912.425131, rel=9.17e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 041: err=12448410607.367819, rel=8.81e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 042: err=11393004467.111416, rel=8.48e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 043: err=10461012057.568005, rel=8.18e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 044: err=9633523211.251202, rel=7.91e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 045: err=8895272163.807661, rel=7.66e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 046: err=8233802803.491462, rel=7.44e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 047: err=7638827801.509842, rel=7.23e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 048: err=7101769125.217465, rel=7.03e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 049: err=6615428321.877821, rel=6.85e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 050: err=6173733267.015427, rel=6.68e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 051: err=5771533739.876674, rel=6.51e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 052: err=5404436024.205084, rel=6.36e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 053: err=5068669487.195962, rel=6.21e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 054: err=4760977377.040527, rel=6.07e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 055: err=4478526222.470757, rel=5.93e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 056: err=4218831126.752365, rel=5.80e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 057: err=3979695564.456193, rel=5.67e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 058: err=3759164297.745931, rel=5.54e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 059: err=3555487649.320156, rel=5.42e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 060: err=3367094953.615574, rel=5.30e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 061: err=3192574697.411164, rel=5.18e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 062: err=3030658884.227762, rel=5.07e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 063: err=2880209633.112651, rel=4.96e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 064: err=2740206787.622567, rel=4.86e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 065: err=2609736050.044393, rel=4.76e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 066: err=2487977642.482314, rel=4.67e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 067: err=2374195692.285636, rel=4.57e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 068: err=2267728535.079695, rel=4.48e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 069: err=2167980040.259696, rel=4.40e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 070: err=2074411970.565398, rel=4.32e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 071: err=1986537322.231856, rel=4.24e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 072: err=1903914557.590947, rel=4.16e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 073: err=1826142628.131839, rel=4.08e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 074: err=1752856682.802482, rel=4.01e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 075: err=1683724357.947937, rel=3.94e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 076: err=1618442550.238798, rel=3.88e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 077: err=1556734582.858791, rel=3.81e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 078: err=1498347688.438369, rel=3.75e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 079: err=1443050748.546717, rel=3.69e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 080: err=1390632246.453331, rel=3.63e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 081: err=1340898404.587651, rel=3.58e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 082: err=1293671488.822582, rel=3.52e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 083: err=1248788267.964273, rel=3.47e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 084: err=1206098619.421181, rel=3.42e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 085: err=1165464272.301248, rel=3.37e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 086: err=1126757678.467181, rel=3.32e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 087: err=1089861001.301744, rel=3.27e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 088: err=1054665211.573253, rel=3.23e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 089: err=1021069279.958758, rel=3.19e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 090: err=988979456.378938, rel=3.14e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 091: err=958308627.137351, rel=3.10e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 092: err=928975741.748621, rel=3.06e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 093: err=900905302.140353, rel=3.02e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 094: err=874026907.544701, rel=2.98e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 095: err=848274848.849851, rel=2.95e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 096: err=823587746.508080, rel=2.91e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 097: err=799908226.374470, rel=2.88e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 098: err=777182628.158930, rel=2.84e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 099: err=755360741.571476, rel=2.81e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 100: err=734395565.749572, rel=2.78e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 101: err=714243088.164846, rel=2.74e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 102: err=694862079.876882, rel=2.71e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 103: err=676213904.683032, rel=2.68e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 104: err=658262340.353660, rel=2.65e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 105: err=640973410.699424, rel=2.63e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 106: err=624315227.663280, rel=2.60e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 107: err=608257842.953704, rel=2.57e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 108: err=592773108.941060, rel=2.55e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 109: err=577834548.641648, rel=2.52e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 110: err=563417234.636469, rel=2.50e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 111: err=549497676.739146, rel=2.47e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 112: err=536053718.163801, rel=2.45e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 113: err=523064439.869091, rel=2.42e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 114: err=510510072.683796, rel=2.40e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 115: err=498371916.761958, rel=2.38e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 116: err=486632267.875880, rel=2.36e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 117: err=475274350.034162, rel=2.33e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 118: err=464282253.907339, rel=2.31e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 119: err=453640880.552589, rel=2.29e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 120: err=443335889.947567, rel=2.27e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 121: err=433353653.868671, rel=2.25e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 122: err=423681212.678355, rel=2.23e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 123: err=414306235.617721, rel=2.21e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 124: err=405216984.233488, rel=2.19e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 125: err=396402278.601960, rel=2.18e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 126: err=387851466.046365, rel=2.16e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 127: err=379554392.077507, rel=2.14e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 128: err=371501373.320556, rel=2.12e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 129: err=363683172.222514, rel=2.10e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 130: err=356090973.364462, rel=2.09e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 131: err=348716361.229747, rel=2.07e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 132: err=341551299.302932, rel=2.05e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 133: err=334588110.394434, rel=2.04e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 134: err=327819458.102052, rel=2.02e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 135: err=321238329.333204, rel=2.01e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 136: err=314838017.821066, rel=1.99e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 137: err=308612108.574428, rel=1.98e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 138: err=302554463.205649, rel=1.96e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 139: err=296659206.084272, rel=1.95e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 140: err=290920711.266214, rel=1.93e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 141: err=285333590.150627, rel=1.92e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 142: err=279892679.818693, rel=1.91e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 143: err=274593032.011111, rel=1.89e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 144: err=269429902.703913, rel=1.88e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 145: err=264398742.245310, rel=1.87e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 146: err=259495186.019629, rel=1.85e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 147: err=254715045.607614, rel=1.84e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 148: err=250054300.415452, rel=1.83e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 149: err=245509089.747674, rel=1.82e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 150: err=241075705.301316, rel=1.81e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 151: err=236750584.060625, rel=1.79e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 152: err=232530301.572867, rel=1.78e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 153: err=228411565.586757, rel=1.77e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 154: err=224391210.035538, rel=1.76e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 155: err=220466189.347061, rel=1.75e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 156: err=216633573.063338, rel=1.74e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 157: err=212890540.752142, rel=1.73e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 158: err=209234377.193329, rel=1.72e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 159: err=205662467.822790, rel=1.71e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 160: err=202172294.417248, rel=1.70e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 161: err=198761431.003663, rel=1.69e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 162: err=195427539.977617, rel=1.68e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 163: err=192168368.415897, rel=1.67e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 164: err=188981744.569387, rel=1.66e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 165: err=185865574.523390, rel=1.65e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 166: err=182817839.013572, rel=1.64e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 167: err=179836590.386813, rel=1.63e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 168: err=176919949.697258, rel=1.62e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 169: err=174066103.928964, rel=1.61e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 170: err=171273303.337441, rel=1.60e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 171: err=168539858.903307, rel=1.60e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 172: err=165864139.892056, rel=1.59e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 173: err=163244571.514674, rel=1.58e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 174: err=160679632.684410, rel=1.57e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 175: err=158167853.865573, rel=1.56e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 176: err=155707815.010657, rel=1.56e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 177: err=153298143.582422, rel=1.55e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 178: err=150937512.657908, rel=1.54e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 179: err=148624639.111530, rel=1.53e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 180: err=146358281.874619, rel=1.52e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 181: err=144137240.268875, rel=1.52e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 182: err=141960352.411303, rel=1.51e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 183: err=139826493.688271, rel=1.50e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 184: err=137734575.296362, rel=1.50e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 185: err=135683542.847700, rel=1.49e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 186: err=133672375.037481, rel=1.48e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 187: err=131700082.371394, rel=1.48e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 188: err=129765705.950658, rel=1.47e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 189: err=127868316.312366, rel=1.46e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 190: err=126007012.322860, rel=1.46e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 191: err=124180920.121843, rel=1.45e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 192: err=122389192.114953, rel=1.44e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 193: err=120631006.012541, rel=1.44e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 194: err=118905563.912439, rel=1.43e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 195: err=117212091.424498, rel=1.42e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 196: err=115549836.834775, rel=1.42e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 197: err=113918070.307246, rel=1.41e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 198: err=112316083.121018, rel=1.41e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 199: err=110743186.941067, rel=1.40e-02\nINFO:clustring_methods.ssnmf_refactored:Iter 200: err=109198713.120612, rel=1.39e-02\n",
+          "mimetype": "text/plain"
+        }
+      ]
+    },
+    {
+      "id": "bcRw",
+      "code_hash": "7d8206bff47762f429b1781fb8fa49d4",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MXze",
+      "code_hash": "e33a57720f0c950b6bd6fe0ceffbe825",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ghow",
+      "code_hash": "1fdb1ecf7420c702b84de6c39a3a7144",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "yAdG",
+      "code_hash": "36142f48b08e70679a01a5fd3eb0dd52",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>array([[ 6189, 64226,     0,  5448,   187,     1,     0, 26873, 68710],\n       [   19,   179,   266,     6,     0,     0,     0,    70,   196],\n       [  103,  1145,     0,    91,     1,     0,     0,   472,  1149],\n       [ 9237, 87721,   287,  7370,   328,     2,    77, 34709, 91102],\n       [    0,     1,     0,     0,     0,     0,     0,     2,     5],\n       [    2,    48,     0,     6,     0,     0,     0,    12,    36],\n       [    0,     9,    13,     0,     0,     0,     0,     1,     8],\n       [ 3462, 35595,     0,  3029,   109,     0,     0, 15072, 37877],\n       [  134,  1529,     0,   115,     6,     0,     0,   653,  1535]])</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "cjUp",
+      "code_hash": "30febd02fb88529d5cb45c0c487a5731",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "eRGw",
+      "code_hash": "b094b074f47706e1f8298518aa28e001",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<marimo-ui-element object-id='eRGw-0' random-id='de8cc1b9-c6cd-898a-ccc0-f9b15f22dddc'><marimo-vega data-initial-value='{}' data-label='null' data-spec='{&quot;config&quot;:{&quot;view&quot;:{&quot;continuousWidth&quot;:300,&quot;continuousHeight&quot;:300}},&quot;layer&quot;:[{&quot;mark&quot;:{&quot;type&quot;:&quot;rect&quot;},&quot;encoding&quot;:{&quot;color&quot;:{&quot;field&quot;:&quot;Count&quot;,&quot;scale&quot;:{&quot;scheme&quot;:&quot;blues&quot;},&quot;title&quot;:&quot;\u4ef6\u6570&quot;,&quot;type&quot;:&quot;quantitative&quot;},&quot;tooltip&quot;:[{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},{&quot;field&quot;:&quot;Count&quot;,&quot;title&quot;:&quot;\u4ef6\u6570&quot;,&quot;type&quot;:&quot;quantitative&quot;}],&quot;x&quot;:{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},&quot;y&quot;:{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;}}},{&quot;mark&quot;:{&quot;type&quot;:&quot;text&quot;,&quot;baseline&quot;:&quot;middle&quot;,&quot;fontSize&quot;:11},&quot;encoding&quot;:{&quot;color&quot;:{&quot;condition&quot;:{&quot;test&quot;:&quot;(datum.Count &gt; 100)&quot;,&quot;value&quot;:&quot;white&quot;},&quot;value&quot;:&quot;black&quot;},&quot;text&quot;:{&quot;field&quot;:&quot;Count&quot;,&quot;format&quot;:&quot;.0f&quot;,&quot;type&quot;:&quot;quantitative&quot;},&quot;x&quot;:{&quot;field&quot;:&quot;Predicted Label&quot;,&quot;title&quot;:&quot;\u4e88\u6e2c\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;},&quot;y&quot;:{&quot;field&quot;:&quot;True Label&quot;,&quot;title&quot;:&quot;\u771f\u306e\u30e9\u30d9\u30eb&quot;,&quot;type&quot;:&quot;nominal&quot;}}}],&quot;data&quot;:{&quot;url&quot;:&quot;./@file/5034-74085-hvPoCIec.arrow&quot;,&quot;format&quot;:{&quot;type&quot;:&quot;arrow&quot;}},&quot;height&quot;:500,&quot;title&quot;:&quot;\u6df7\u540c\u884c\u5217\u30d2\u30fc\u30c8\u30de\u30c3\u30d7&quot;,&quot;width&quot;:500,&quot;&#36;schema&quot;:&quot;https://vega.github.io/schema/vega-lite/v6.1.0.json&quot;}' data-chart-selection='true' data-field-selection='true' data-embed-options='{}'></marimo-vega></marimo-ui-element>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "IgIg",
+      "code_hash": null,
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    }
+  ]
+}
