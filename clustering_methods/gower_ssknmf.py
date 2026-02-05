@@ -546,6 +546,7 @@ class SSKNMF:
 class GowerSSKNMF:
     def __init__(self, config: GowerSSKNMFConfig):
         self.config = config
+        logger.info(f"config: {self.config.base_path}")
 
         self.df_original, self.metadata = load_dataset(
             dataset_name=self.config.dataset_name,

@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned"):
     path = Path(f"{base_path}") / dataset_name
     files = list(path.glob("*.csv"))
+    if len(files) == 0:
+        raise FileNotFoundError(f"No files found in {path}")
     schema = get_schema(files)
     # 遅延評価でメモリ効率を向上（スキーマを事前に指定して型推論を回避）
     dfs: list[LazyFrame] = [pl.scan_csv(file, schema_overrides=schema) for file in files]

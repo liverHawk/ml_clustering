@@ -146,6 +146,7 @@ def load_args():
 
 
 def main():
+    base_path = "/home/toshi/Documents/dataset/project/cleaned"
     exp = comet_ml.start(project_name="cluster")
     save_path = Path(f'./results')
     save_path.mkdir(parents=True, exist_ok=True)
@@ -153,7 +154,7 @@ def main():
     # args = load_args()
     params = load_params()
 
-    df_original, metadata = load_dataset(params["dataset"], debug=False)
+    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path)
     n_clusters = df_original["Label"].n_unique()
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
@@ -169,7 +170,7 @@ def main():
     })
 
     config = GowerSSKNMFConfig(
-        base_path="/home/hawk/Documents/school/dataset/project/cleaned",
+        base_path=base_path,
         dataset_name=params["dataset"],
         n_samples_per_label=params["n_samples_per_label"],
         labeled_rate=params["labeled_rate"],
