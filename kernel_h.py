@@ -51,6 +51,9 @@ def load_params():
     if "normalize_numerical" in params and params["normalize_numerical"] is not None:
         params["normalize_numerical"] = str(params["normalize_numerical"]).strip().lower()
     
+    if "base_path" in params:
+        params["base_path"] = str(params["base_path"]).strip()
+    
     # 制約手法のパラメータ
     if "constraint_method" not in params:
         params["constraint_method"] = "hard"
@@ -146,13 +149,13 @@ def load_args():
 
 
 def main():
-    base_path = "/home/toshi/Documents/dataset/project/cleaned"
     exp = comet_ml.start(project_name="cluster")
     save_path = Path(f'./results')
     save_path.mkdir(parents=True, exist_ok=True)
 
     # args = load_args()
     params = load_params()
+    base_path = params["base_path"]
 
     df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path)
     n_clusters = df_original["Label"].n_unique()
