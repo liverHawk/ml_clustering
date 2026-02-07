@@ -8,7 +8,7 @@ from clustering_methods.configs import GowerSSKNMFConfig
 from clustering_methods import GowerSSKNMF
 from lib.cluster_index import ClusterIndex
 from dataset.utils import load_dataset
-from lib.experiment_db import ClusterResult, Experiment, get_session
+from lib.experiment_db import ClusterResult, ClusterSummary, Experiment, get_session
 
 import yaml
 import argparse
@@ -71,6 +71,12 @@ def load_params():
             params["known_labels"] = [params["known_labels"]]
         elif not isinstance(params["known_labels"], list):
             params["known_labels"] = list(params["known_labels"])
+    
+    if "exclude_labels" in params:
+        if isinstance(params["known_labels"], str):
+            params["exclude_labels"] = [params["exclude_labels"]]
+        elif not isinstance(params["exclude_labels"], list):
+            params["exclude_labels"] = list(params["exclude_labels"])
     
     if "use_labels" in params:
         if isinstance(params["use_labels"], str):
@@ -154,12 +160,12 @@ def main():
     # args = load_args()
     params = load_params()
 
-    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path)
-    n_clusters = df_original["Label"].n_unique()
+    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path, convert_labels=False, config=params)
+    n_clusters_true = df_original["Label"].n_unique()
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
     if center_n_clusters == 0:
-        center_n_clusters = n_clusters
+        center_n_clusters = n_clusters_true
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
 
@@ -174,7 +180,8 @@ def main():
         dataset_name=params["dataset"],
         n_samples_per_label=params["n_samples_per_label"],
         labeled_rate=params["labeled_rate"],
-        random_state=params["random_state"]
+        random_state=params["random_state"],
+        exclude_labels=params.get("exclude_labels"),
     )
     model = GowerSSKNMF(config)
     logger.info(model.get_labels())
@@ -303,12 +310,58 @@ def main():
                     ARI=metrics.get("ARI"),
                     NMI=metrics.get("NMI"),
                     FMI=metrics.get("FMI"),
+                    purity=metrics.get("purity"),
+                    entropy=metrics.get("entropy"),
                 )
                 session.add(result)
             else:
                 logger.warning(
                     f"n_clusters={n_clusters}: 評価対象データが0件のため、評価指標をスキップします"
                 )
+
+        # ================== クラスタ数推定の要約 ==================
+        # ARI を主指標として K_hat を選択し、|K_hat - K_true| と
+        # そのときの ARI/NMI を保存する
+        best_k = None
+        best_ari = None
+        best_nmi = None
+
+        if hasattr(score, "results_with_label"):
+            for k, m in score.results_with_label.items():
+                ari = m.get("ARI")
+                nmi = m.get("NMI")
+                if ari is None or np.isnan(ari):
+                    continue
+                if best_ari is None or ari > best_ari:
+                    best_ari = float(ari)
+                    best_nmi = float(nmi) if nmi is not None and not np.isnan(nmi) else None
+                    best_k = int(k)
+
+        if best_k is not None and best_ari is not None:
+            k_true = int(n_clusters_true)
+            k_error_abs = abs(best_k - k_true)
+
+            # Comet へのログ
+            exp.log_metrics(
+                {
+                    "n_clusters_true": k_true,
+                    "n_clusters_hat_ari": best_k,
+                    "n_clusters_error_abs": k_error_abs,
+                    "ari_at_hat": best_ari,
+                    "nmi_at_hat": best_nmi,
+                }
+            )
+
+            # DB への保存
+            summary = ClusterSummary(
+                experiment_id=experiment.id,
+                n_clusters_true=k_true,
+                n_clusters_hat_ari=best_k,
+                n_clusters_error_abs=k_error_abs,
+                ari_at_hat=best_ari,
+                nmi_at_hat=best_nmi,
+            )
+            session.add(summary)
 
         session.commit()
     finally:

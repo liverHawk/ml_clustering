@@ -48,13 +48,23 @@ use_labels: []
 # - Web Attack
 # - DoS
 # - DDoS
-known_labels:
-- DoS
-- DDoS
+
+# known_label
+# exclude_labels: []
+# known_labels:
+#   - DoS GoldenEye
+#   - DDoS
+
+# no_known_label
+exclude_labels:
+  - DoS GoldenEye
+  - DDoS
+known_labels: []
+
 categorical_columns:
-- Src Port
-- Dst Port
-- Protocol
+  - Src Port
+  - Dst Port
+  - Protocol
 tags:
-- labels
+  - labels
 use_known_no_labeled: false

@@ -551,7 +551,8 @@ class GowerSSKNMF:
         self.df_original, self.metadata = load_dataset(
             dataset_name=self.config.dataset_name,
             debug=self.config.debug,
-            base_path=self.config.base_path
+            base_path=self.config.base_path,
+            config={"exclude_labels": self.config.exclude_labels or []},
         )
         self.all_labels = self.df_original["Label"].unique().to_list()
         self.use_labels = None

@@ -44,7 +44,9 @@ def single_analyze(analyze_time: str, overwrite: bool = False):
 
     score_name_list = [
         "silhouette_score", "ch_score", "db_score",
-        "ARI", "NMI", "FMI", 'wb_index'
+        "ARI", "NMI", "FMI",
+        "purity", "entropy",
+        "wb_index",
     ]
     mapping = {}
 
@@ -65,6 +67,8 @@ def single_analyze(analyze_time: str, overwrite: bool = False):
         file_name = file.stem
 
         for score_name in score_name_list:
+            if score_name not in df.columns:
+                continue
             idx = mapping[score_name]
             axes[idx // n_columns, idx % n_columns].plot(
                 n_clusters,

@@ -268,3 +268,4 @@ class GowerSSKNMFConfig:
 
     random_state: int = 42
     debug: bool = False
+    exclude_labels: Optional[List[str]] = None

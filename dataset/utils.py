@@ -14,7 +14,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned"):
+def load_dataset(
+    dataset_name: str = "CICIDS2017_improved",
+    debug: bool = False,
+    base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned",
+    convert_labels: bool = True,
+    config: dict | None = None,
+):
     path = Path(f"{base_path}") / dataset_name
     files = list(path.glob("*.csv"))
     if len(files) == 0:
@@ -36,7 +42,13 @@ def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False,
         value_counts.write_csv("./results/csv/value_counts.csv")
 
     if dataset_name in ["CICIDS2017_improved", "CICIDS2017_flow_improved", "CSECICIDS2018_improved"]:
-        df = cicids2017.relabeled_dataset(df)
+        df = cicids2017.relabeled_dataset(df, convert_labels=convert_labels)
+        config = config or {}
+        exclude_labels = config.get("exclude_labels")
+        if exclude_labels:
+            df = df.filter(~pl.col("Label").is_in(exclude_labels))
+        config["use_labels"] = df["Label"].unique().to_list()
+
     elif dataset_name in ["CICDDoS2019"]:
         # df = cicddos2019.relabeled_dataset(df)
         pass
