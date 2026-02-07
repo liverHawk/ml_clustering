@@ -53,6 +53,8 @@ def load_params():
     
     if "base_path" in params:
         params["base_path"] = str(params["base_path"]).strip()
+    if "relabel" in params:
+        params["relabel"] = bool(params["relabel"])
     
     # 制約手法のパラメータ
     if "constraint_method" not in params:
@@ -80,6 +82,12 @@ def load_params():
             params["use_labels"] = [params["use_labels"]]
         elif not isinstance(params["use_labels"], list):
             params["use_labels"] = list(params["use_labels"])
+    
+    if "exclude_labels" in params:
+        if isinstance(params["exclude_labels"], str):
+            params["exclude_labels"] = [params["exclude_labels"]]
+        elif not isinstance(params["exclude_labels"], list):
+            params["exclude_labels"] = list(params["exclude_labels"])
     
     if "categorical_columns" in params:
         if isinstance(params["categorical_columns"], str):
@@ -157,8 +165,17 @@ def main():
     params = load_params()
     base_path = params["base_path"]
 
-    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path)
+    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path, relabel=params["relabel"])
+
+    if params["exclude_labels"] and len(params["exclude_labels"]) > 0:
+        df_original = df_original.filter(~pl.col("Label").is_in(params["exclude_labels"]))
+
     n_clusters = df_original["Label"].n_unique()
+    all_labels = df_original["Label"].unique().to_list()
+    with open(f"dataset_metadata/{params['dataset']}_label.txt", "w") as f:
+        for label in all_labels:
+            f.write(f"{label}\n")
+
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
     if center_n_clusters == 0:

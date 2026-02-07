@@ -5,7 +5,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def relabeled_dataset(df: pl.DataFrame):
+def relabeled_dataset(df: pl.DataFrame, relabel: bool = True):
     df_copy = df.clone()
     labels = df['Label'].unique().to_list()
     for label in labels:
@@ -17,6 +17,8 @@ def relabeled_dataset(df: pl.DataFrame):
                 .otherwise(pl.col("Label"))
                 .alias("Label")
             )
+        if not relabel:
+            continue
         if "Web Attack" in label:
             df_copy = df_copy.with_columns(
                 pl.when(pl.col("Label") == label)

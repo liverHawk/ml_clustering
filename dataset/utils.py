@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned"):
+def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned", relabel: bool = True):
     path = Path(f"{base_path}") / dataset_name
     files = list(path.glob("*.csv"))
     if len(files) == 0:
@@ -36,7 +36,7 @@ def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False,
         value_counts.write_csv("./results/csv/value_counts.csv")
 
     if dataset_name in ["CICIDS2017_improved", "CICIDS2017_flow_improved", "CSECICIDS2018_improved"]:
-        df = cicids2017.relabeled_dataset(df)
+        df = cicids2017.relabeled_dataset(df, relabel=relabel)
     elif dataset_name in ["CICDDoS2019"]:
         # df = cicddos2019.relabeled_dataset(df)
         pass
