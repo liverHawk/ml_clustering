@@ -1,4 +1,4 @@
-dataset: CICIDS2017_flow_improved
+dataset: CICDDoS2019
 n_samples_per_label: 100
 labeled_rate: 0.2
 random_state: 42
@@ -40,7 +40,11 @@ normalize_numerical: none  # デフォルト: none
 
 use_labels: []
 known_labels: []
-exclude_labels: []
+exclude_labels:
+- DrDoS_DNS
+- DrDoS_UDP
+- DrDoS_SSDP
+- NetBIOS
 categorical_columns:
 - Src Port
 - Dst Port
