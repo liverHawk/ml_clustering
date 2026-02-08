@@ -1,14 +1,11 @@
-DoS GoldenEye
-DDoS-LOIC-UDP
 Web Attack - XSS
-DoS Hulk
-Infiltration - Dropbox Download
-Web Attack - Brute Force
-Infiltration - Communication Victim Attacker
 Infiltration - NMAP Portscan
-Web Attack - SQL
-DoS Slowloris
 DDoS-HOIC
-DDoS-LOIC-HTTP
-SSH-BruteForce
-Botnet Ares
+DoS Slowloris
+DDoS-LOIC-UDP
+DoS GoldenEye
+Web Attack - SQL
+Web Attack - Brute Force
+DoS Hulk
+Infiltration - Communication Victim Attacker
+Infiltration - Dropbox Download

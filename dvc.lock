@@ -9,5 +9,5 @@ stages:
       size: 13563
     - path: params.yaml
       hash: md5
-      md5: c3fde9c4246a5180032c8fe71d8e8a1d
-      size: 2160
+      md5: 27d168ad853741863bcd7ff3a7704bee
+      size: 601

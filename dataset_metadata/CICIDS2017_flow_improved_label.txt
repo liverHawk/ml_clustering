@@ -1,14 +1,11 @@
+Web Attack - Brute Force
+Infiltration
+DoS GoldenEye
+DoS Slowhttptest
 Heartbleed
 Bot
-DoS Slowhttptest
-Web Attack - Sql Injection
-DoS GoldenEye
-DDoS
 Web Attack - XSS
+Web Attack - Sql Injection
+DDoS
 DoS Hulk
 PortScan
-Infiltration
-Web Attack - Brute Force
-FTP-Patator
-SSH-Patator
-DoS slowloris
