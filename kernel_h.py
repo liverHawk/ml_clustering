@@ -1,3 +1,10 @@
+import resource
+# プロセス仮想メモリ上限（バイト）。メモリ不足で "memory allocation failed" が出る場合は
+# 上限を緩めて OS の実メモリ/スワップに任せるほうが安全。
+memory_limit = resource.RLIM_INFINITY
+resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
+
+import gc
 import comet_ml
 import sys
 from pathlib import Path
@@ -162,6 +169,9 @@ def main():
 
     df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path, convert_labels=False, config=params)
     n_clusters_true = df_original["Label"].n_unique()
+    # df_original は n_clusters_true と params["use_labels"] の取得のみに使用。即座に解放
+    del df_original, metadata
+    gc.collect()
 
     center_n_clusters = len(params["use_labels"])  # = len(use_labels)
     if center_n_clusters == 0:
@@ -250,6 +260,12 @@ def main():
         session.add(experiment)
         session.flush()  # experiment.id を取得する
 
+        # labels_array をループ外で1回だけ取得（毎回 Series→numpy 変換するのを回避）
+        # convert_to_kernel() 後、df_setup は解放済みなので labels_series を使用
+        labels_array = np.asarray(model.labels_series.to_numpy())
+        # ループ不変の既知クラスタID
+        known_cluster_ids = list(range(len(params["known_labels"])))
+
         for n_clusters in range(start, end):
             logger.info(f"n_clusters: {n_clusters}")
             predictions, membership = model.predict(
@@ -264,39 +280,29 @@ def main():
                 alpha_init=alpha_init,
                 alpha_final=alpha_final
             )
+            del membership  # 使用後すぐに解放
+            gc.collect()
 
-            # logger.info(predictions)
-            # logger.info(membership)
+            pred_arr = np.asarray(predictions)
+            mask = ~np.isin(pred_arr, known_cluster_ids)
+            n_total, n_eval = len(pred_arr), int(mask.sum())
 
-            evaluation = pl.DataFrame({
-                "kernel": model.kernel,
-                "predictions": predictions,
-                "true_labels": model.df_setup["Label"].to_list(),
-            })
-
-            # _plot_confusion_matrix(evaluation, save_path, n_clusters)
-
-            # 既知ラベルが固定されたクラスタIDを取得（0からlen(known_labels)-1まで）
-            known_cluster_ids = list(range(len(params["known_labels"])))
-            
-            # 既知ラベルが固定されたクラスタに割り当てられたデータを除外
-            evaluation_filtered = evaluation.filter(
-                ~pl.col("predictions").is_in(known_cluster_ids)
-            )
-            
             logger.info(
                 f"既知ラベル固定クラスタ ({known_cluster_ids}) のデータを除外: "
-                f"全データ数={len(evaluation)}, 評価対象データ数={len(evaluation_filtered)}"
+                f"全データ数={n_total}, 評価対象データ数={n_eval}"
             )
-            
-            # 除外後のデータで評価指標を計算
-            if len(evaluation_filtered) > 0:
+
+            # 評価用に巨大 DataFrame を組まず、必要な行だけスライスしてメモリ節約
+            if n_eval > 0:
+                kernel_filtered = model.kernel[mask]
+                label_filtered = labels_array[mask]
                 score.add(
                     n_clusters,
-                    evaluation_filtered["kernel"].to_numpy(),
-                    evaluation_filtered["predictions"].to_numpy(),
-                    evaluation_filtered["true_labels"].to_numpy(),
+                    kernel_filtered,
+                    pred_arr[mask],
+                    label_filtered,
                 )
+                del kernel_filtered, label_filtered
 
                 metrics = score.get_results(n_clusters)
                 exp.log_metrics(metrics, step=n_clusters)

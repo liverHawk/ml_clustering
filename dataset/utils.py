@@ -1,3 +1,4 @@
+import gc
 from polars.lazyframe import LazyFrame
 import polars as pl
 import logging
@@ -26,14 +27,20 @@ def load_dataset(
     if len(files) == 0:
         raise FileNotFoundError(f"No files found in {path}")
     schema = get_schema(files)
-    # 遅延評価でメモリ効率を向上（スキーマを事前に指定して型推論を回避）
-    dfs: list[LazyFrame] = [pl.scan_csv(file, schema_overrides=schema) for file in files]
-    df = pl.concat(dfs).collect()
-
+    gc.collect()
     delete_columns = ["Src IP", "Dst IP", "Timestamp", "Source IP", "Destination IP", "SimillarHTTP"]
-    delete_columns = [col for col in delete_columns if col in df.columns]
-
-    df: pl.DataFrame = df.drop(delete_columns)
+    keep_columns = [c for c in schema if c not in delete_columns]
+    # 遅延評価＋不要列を読まないでメモリ節約（スキーマ指定で型推論も回避）
+    dfs: list[LazyFrame] = [
+        pl.scan_csv(file, schema_overrides=schema).select(keep_columns)
+        for file in files
+    ]
+    del schema
+    del files
+    gc.collect()
+    df = pl.concat(dfs).collect(engine="streaming")
+    del dfs
+    gc.collect()
 
     if debug:
         for col in df.columns:
@@ -116,6 +123,11 @@ class DataLoader:
             self.config.n_samples,
             self.config.seed
         )
+        
+        # サンプリング完了後、df_raw はもう不要なので即座に解放してメモリ節約
+        del self.df_raw
+        self.df_raw = None
+        gc.collect()
         
         # メタデータの更新
         metadata["n_samples"] = len(self.df_sampled)
