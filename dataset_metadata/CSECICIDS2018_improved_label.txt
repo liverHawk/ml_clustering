@@ -1,11 +1,11 @@
-Web Attack - XSS
-Infiltration - NMAP Portscan
-DDoS-HOIC
+Infiltration - Communication Victim Attacker
 DoS Slowloris
+Infiltration - Dropbox Download
 DDoS-LOIC-UDP
 DoS GoldenEye
-Web Attack - SQL
-Web Attack - Brute Force
+Web Attack - XSS
 DoS Hulk
-Infiltration - Communication Victim Attacker
-Infiltration - Dropbox Download
+Web Attack - Brute Force
+Web Attack - SQL
+Infiltration - NMAP Portscan
+DDoS-HOIC

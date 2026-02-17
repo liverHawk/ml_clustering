@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 import polars as pl
+from scipy.stats import entropy
 
 from sklearn.cluster import KMeans
 
@@ -118,6 +119,68 @@ class ClusterIndex:
         )
         self.results[n_clusters]["wb_index"] = n_clusters * ssw / ssb
 
+    def _calculate_purity(self, label, y):
+        """純度（Purity）を計算する。
+        
+        各クラスタ内で最も多い真のラベルの割合の平均を返す。
+        """
+        n_samples = len(label)
+        if n_samples == 0:
+            return np.nan
+        
+        unique_clusters = np.unique(y)
+        purity_sum = 0.0
+        
+        for cluster_id in unique_clusters:
+            cluster_mask = (y == cluster_id)
+            cluster_labels = label[cluster_mask]
+            cluster_size = len(cluster_labels)
+            
+            if cluster_size == 0:
+                continue
+            
+            # クラスタ内で最も多いラベルの数をカウント
+            unique_labels, counts = np.unique(cluster_labels, return_counts=True)
+            max_count = np.max(counts)
+            
+            # クラスタの純度 = 最も多いラベルの割合
+            cluster_purity = max_count / cluster_size
+            purity_sum += cluster_purity * cluster_size
+        
+        return purity_sum / n_samples
+
+    def _calculate_entropy(self, label, y):
+        """エントロピー（Entropy）を計算する。
+        
+        各クラスタ内のラベルの分布のエントロピーの重み付き平均を返す。
+        """
+        n_samples = len(label)
+        if n_samples == 0:
+            return np.nan
+        
+        unique_clusters = np.unique(y)
+        entropy_sum = 0.0
+        
+        for cluster_id in unique_clusters:
+            cluster_mask = (y == cluster_id)
+            cluster_labels = label[cluster_mask]
+            cluster_size = len(cluster_labels)
+            
+            if cluster_size == 0:
+                continue
+            
+            # クラスタ内のラベルの分布を計算
+            unique_labels, counts = np.unique(cluster_labels, return_counts=True)
+            probabilities = counts / cluster_size
+            
+            # エントロピーを計算（底は2）
+            cluster_entropy = entropy(probabilities, base=2)
+            
+            # 重み付き平均のために加算
+            entropy_sum += cluster_entropy * cluster_size
+        
+        return entropy_sum / n_samples
+
     def add(self, n_clusters, x, y, label, kmeans: KMeans = None):
         self._common_add(n_clusters, x, y)
         # self._wb_index(n_clusters, x, y, kmeans)
@@ -129,10 +192,16 @@ class ClusterIndex:
         nmi = metrics.normalized_mutual_info_score(label, y)
         fmi = metrics.fowlkes_mallows_score(label, y)
 
+        # 純度とエントロピーを計算
+        purity = self._calculate_purity(label, y)
+        entropy_score = self._calculate_entropy(label, y)
+
         self.results_with_label[n_clusters] = {
             "ARI": ari,
             "NMI": nmi,
-            "FMI": fmi
+            "FMI": fmi,
+            "purity": purity,
+            "entropy": entropy_score
         }
     
     def get_results(self, n_clusters):

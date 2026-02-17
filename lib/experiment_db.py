@@ -12,6 +12,7 @@ from sqlalchemy import (
     String,
     Text,
     create_engine,
+    text,
 )
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -100,6 +101,9 @@ class ClusterResult(Base):
     NMI: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     FMI: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
+    purity: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    entropy: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+
     experiment: Mapped[Experiment] = relationship(back_populates="results")
 
 
@@ -107,6 +111,38 @@ def init_db() -> None:
     """テーブルが存在しなければ作成する。"""
 
     Base.metadata.create_all(bind=engine)
+    _migrate_add_purity_entropy()
+
+
+def _migrate_add_purity_entropy() -> None:
+    """既存のcluster_resultsテーブルにpurityとentropyカラムを追加する。"""
+    with engine.connect() as conn:
+        # テーブルが存在するか確認
+        result = conn.execute(
+            text("SELECT name FROM sqlite_master WHERE type='table' AND name='cluster_results'")
+        )
+        if result.fetchone() is None:
+            return  # テーブルが存在しない場合は何もしない
+
+        # purityカラムが存在するか確認
+        result = conn.execute(
+            text("PRAGMA table_info(cluster_results)")
+        )
+        columns = [row[1] for row in result.fetchall()]
+        
+        # purityカラムが存在しない場合は追加
+        if "purity" not in columns:
+            conn.execute(
+                text("ALTER TABLE cluster_results ADD COLUMN purity REAL")
+            )
+            conn.commit()
+        
+        # entropyカラムが存在しない場合は追加
+        if "entropy" not in columns:
+            conn.execute(
+                text("ALTER TABLE cluster_results ADD COLUMN entropy REAL")
+            )
+            conn.commit()
 
 
 def get_session() -> Session:

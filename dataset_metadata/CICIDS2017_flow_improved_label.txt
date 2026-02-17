@@ -1,11 +1,11 @@
-Web Attack - Brute Force
-Infiltration
-DoS GoldenEye
-DoS Slowhttptest
-Heartbleed
-Bot
-Web Attack - XSS
 Web Attack - Sql Injection
+Bot
+DoS Slowhttptest
+Web Attack - Brute Force
+PortScan
+DoS GoldenEye
+Web Attack - XSS
+Heartbleed
 DDoS
 DoS Hulk
-PortScan
+Infiltration

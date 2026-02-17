@@ -323,6 +323,8 @@ def main():
                     ARI=metrics.get("ARI"),
                     NMI=metrics.get("NMI"),
                     FMI=metrics.get("FMI"),
+                    purity=metrics.get("purity"),
+                    entropy=metrics.get("entropy"),
                 )
                 session.add(result)
             else:
