@@ -1,10 +1,10 @@
 dataset: CICIDS2017_flow_improved
 convert_labels: false
-n_samples_per_label: 100
+n_samples_per_label: 1000
 labeled_rate: 0.2
 random_state: 42
-kernel_sigma: 0.15
-alpha: 0.5
+kernel_sigma: 0.01
+alpha: 10.0
 max_iter: 100
 tol: 1e-6
 
@@ -22,7 +22,7 @@ kernel_method: exponential # デフォルトは"rbf"
 
 # 各手法のパラメータ（手法に応じて使用）
 beta: 0.01  # interpolation, relaxation, confidenceで使用
-learning_rate: 0.001  # partialで使用
+learning_rate: 0.00001  # partialで使用
 alpha_init:       # adaptive_alphaで使用（nullの場合はalphaを使用）
 alpha_final:       # adaptive_alphaで使用（nullの場合はalpha * 0.1を使用）
 # confidence_weights: [1.0, 0.9, 0.8, ...]  # confidenceで使用（各ラベル付きサンプルの信頼度）
@@ -50,17 +50,19 @@ use_labels: []
 # - DoS
 # - DDoS
 
-# known_label
-exclude_labels: []
-known_labels:
-  - DoS GoldenEye
-  - DDoS
-
-# # no_known_label
-# exclude_labels:
+# # known_label
+# exclude_labels: []
+# known_labels:
 #   - DoS GoldenEye
 #   - DDoS
-# known_labels: []
+#   - PortScan
+
+# no_known_label
+exclude_labels:
+  - DoS GoldenEye
+  - DDoS
+  - PortScan
+known_labels: []
 
 categorical_columns:
   - Src Port
