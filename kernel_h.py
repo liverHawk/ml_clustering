@@ -193,10 +193,9 @@ def main():
     if not params["use_labels"]:
         params["use_labels"] = model.get_labels()
 
+    # exclude_labels を反映したラベル数（=有効ラベル数）を中心に n_clusters を決める
     n_clusters_true = len(model.get_labels())
-    center_n_clusters = len(params["use_labels"])
-    if center_n_clusters == 0:
-        center_n_clusters = n_clusters_true
+    center_n_clusters = n_clusters_true
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
 
