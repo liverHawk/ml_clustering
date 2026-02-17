@@ -14,9 +14,9 @@ DATASETS = [
 
 LABEL_SETS = [
     [
-        "FTP-Patator",
-        "SSH-Patator",
-        "DoS slowloris",
+        "DoS GoldenEye",
+        "DDoS",
+        "PortScan",
     ],
     [
         "DDoS-LOIC-HTTP",

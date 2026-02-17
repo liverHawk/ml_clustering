@@ -1,2 +1,5 @@
 [core]
     autostage = true
+    remote = remote
+['remote "remote"']
+    url = ssh://toshi@kali:/home/toshi/Dvc/master-clustering
