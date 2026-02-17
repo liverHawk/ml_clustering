@@ -62,6 +62,14 @@ def update_params(params: dict, dataset: str, label_set: list) -> dict:
     return known_params, exclude_params
 
 
+def run_command(command: list[str]):
+    try:
+        result = subprocess.run(command, text=True)
+        logger.info(result.stdout)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error: {e.stderr}")
+
+
 def main():
     params = load_params()
     count = 0
@@ -69,14 +77,17 @@ def main():
         params_sets = update_params(params, dataset, label_set)
         for _params in params_sets:
             count += 1
+            logger.info("=" * 100)
             with open('params.yaml', 'w') as f:
                 yaml.dump(_params, f)
             logger.info(f"[{count:1d}/6] Running {dataset} {label_set}")
-            try:
-                result = subprocess.run(['dvc', 'repro', '-f'], text=True)
-                logger.info(result.stdout)
-            except subprocess.CalledProcessError as e:
-                logger.error(f"Error: {e.stderr}")
+            run_command(['dvc', 'repro', '-f'])
+            
+            logger.info("-" * 100)
+            
+            run_command(["git", "add", "."])
+            run_command(["git", "commit", "-m", f"[{count:1d}/6] Running {dataset} {label_set}"])
+            run_command(["git", "push"])
 
 
 if __name__ == '__main__':
