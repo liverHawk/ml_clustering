@@ -578,6 +578,7 @@ class GowerSSKNMF:
             dataset_name=self.config.dataset_name,
             debug=self.config.debug,
             base_path=self.config.base_path,
+            convert_labels=self.config.convert_labels,
             config={"exclude_labels": self.config.exclude_labels or []},
         )
         self.all_labels = self.df_original["Label"].unique().to_list()

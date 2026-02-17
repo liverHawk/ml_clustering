@@ -1,4 +1,5 @@
-dataset: CSECICIDS2018_improved
+dataset: CICIDS2017_flow_improved
+convert_labels: false
 n_samples_per_label: 100
 labeled_rate: 0.2
 random_state: 42
@@ -50,16 +51,16 @@ use_labels: []
 # - DDoS
 
 # known_label
-# exclude_labels: []
-# known_labels:
+exclude_labels: []
+known_labels:
+  - DoS GoldenEye
+  - DDoS
+
+# # no_known_label
+# exclude_labels:
 #   - DoS GoldenEye
 #   - DDoS
-
-# no_known_label
-exclude_labels:
-  - DoS GoldenEye
-  - DDoS-LOIC-UDP
-known_labels: []
+# known_labels: []
 
 categorical_columns:
   - Src Port

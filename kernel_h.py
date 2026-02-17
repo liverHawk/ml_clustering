@@ -14,7 +14,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from clustering_methods.configs import GowerSSKNMFConfig
 from clustering_methods import GowerSSKNMF
 from lib.cluster_index import ClusterIndex
-from dataset.utils import load_dataset
 from lib.experiment_db import ClusterResult, ClusterSummary, Experiment, get_session
 
 import yaml
@@ -167,13 +166,24 @@ def main():
     # args = load_args()
     params = load_params()
 
-    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path, convert_labels=False, config=params)
-    n_clusters_true = df_original["Label"].n_unique()
-    # df_original は n_clusters_true と params["use_labels"] の取得のみに使用。即座に解放
-    del df_original, metadata
-    gc.collect()
+    config = GowerSSKNMFConfig(
+        base_path=base_path,
+        dataset_name=params["dataset"],
+        n_samples_per_label=params["n_samples_per_label"],
+        labeled_rate=params["labeled_rate"],
+        random_state=params["random_state"],
+        convert_labels=params.get("convert_labels", True),
+        exclude_labels=params.get("exclude_labels"),
+    )
+    model = GowerSSKNMF(config)
+    logger.info(model.get_labels())
 
-    center_n_clusters = len(params["use_labels"])  # = len(use_labels)
+    # use_labels が空ならモデルの全ラベルで補完
+    if not params["use_labels"]:
+        params["use_labels"] = model.get_labels()
+
+    n_clusters_true = len(model.get_labels())
+    center_n_clusters = len(params["use_labels"])
     if center_n_clusters == 0:
         center_n_clusters = n_clusters_true
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
@@ -185,16 +195,6 @@ def main():
         "n_clusters_range": list(range(start, end))
     })
 
-    config = GowerSSKNMFConfig(
-        base_path=base_path,
-        dataset_name=params["dataset"],
-        n_samples_per_label=params["n_samples_per_label"],
-        labeled_rate=params["labeled_rate"],
-        random_state=params["random_state"],
-        exclude_labels=params.get("exclude_labels"),
-    )
-    model = GowerSSKNMF(config)
-    logger.info(model.get_labels())
     model.set_labels(
         use_labels=params["use_labels"],
         known_labels=params["known_labels"],
@@ -296,12 +296,19 @@ def main():
             if n_eval > 0:
                 kernel_filtered = model.kernel[mask]
                 label_filtered = labels_array[mask]
+                pred_filtered = pred_arr[mask]
                 score.add(
                     n_clusters,
                     kernel_filtered,
-                    pred_arr[mask],
+                    pred_filtered,
                     label_filtered,
                 )
+                # 混同行列は全データ（全 true label を表示するため）で描画して保存
+                true_and_predictions_full = pl.DataFrame({
+                    "true_labels": labels_array,
+                    "predictions": pred_arr,
+                })
+                _plot_confusion_matrix(true_and_predictions_full, save_path, n_clusters)
                 del kernel_filtered, label_filtered
 
                 metrics = score.get_results(n_clusters)
@@ -380,8 +387,8 @@ def main():
     # score.save_data(
     #     path=save_path
     # )
-    # for file in save_path.glob("*.png"):
-    #     exp.log_image(file)
+    for file in save_path.glob("*.png"):
+        exp.log_image(file)
 
 
 if __name__ == "__main__":

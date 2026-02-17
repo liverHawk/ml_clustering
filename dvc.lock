@@ -5,9 +5,15 @@ stages:
     deps:
     - path: kernel_h.py
       hash: md5
-      md5: adf56ecc1d742eacc16f86f619c293a7
-      size: 14867
+      md5: 48f6546ad49e5ac704c26003ae1d33c0
+      size: 15526
     - path: params.yaml
       hash: md5
-      md5: f918a9dc8eb898399d142b72c35370b6
-      size: 2305
+      md5: a98b9ae98d52f6cd44fb1db6942f1286
+      size: 2329
+    outs:
+    - path: results
+      hash: md5
+      md5: c62c68161412560a2921defbe644cf7b.dir
+      size: 2701789
+      nfiles: 9
