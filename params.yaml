@@ -11,13 +11,13 @@ categorical_weight: 2.0
 constraint_method: hard
 convert_labels: false
 dataset: CICDDoS2019
-exclude_labels: []
-kernel_method: exponential
-kernel_sigma: 0.01
-known_labels:
+exclude_labels:
 - WebDDoS
 - DrDoS_NetBIOS
 - DrDoS_SNMP
+kernel_method: exponential
+kernel_sigma: 0.01
+known_labels: []
 labeled_rate: 0.2
 learning_rate: 1.0e-05
 max_iter: 100
