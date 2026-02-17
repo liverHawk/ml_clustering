@@ -40,9 +40,14 @@ def _plot_scores(
             plt.savefig(f'{path}{score}.png')
             plt.close()
     else:
-        # 1枚の図の中に3つのサブプロットを作成 (3行1列)
-        fig, axes = plt.subplots(3, 1, figsize=(10, 15))
-        fig.subplots_adjust(hspace=0.4)  # グラフ間の上下の隙間を調整
+        # 指標数に応じてサブプロットを動的に生成
+        n_scores = len(score_list)
+        n_cols = 3
+        n_rows = int(np.ceil(n_scores / n_cols))
+
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(8 * n_cols, 4.5 * n_rows))
+        fig.subplots_adjust(hspace=0.4, wspace=0.3)  # グラフ間の隙間を調整
+        axes = np.atleast_1d(axes).ravel()
 
         cmap = plt.get_cmap('tab20')
 
@@ -56,6 +61,10 @@ def _plot_scores(
             axes[idx].set_xlabel('n_clusters')
             axes[idx].set_ylabel('Score')
             axes[idx].grid(True)
+
+        # 余った axes を非表示
+        for j in range(n_scores, len(axes)):
+            axes[j].set_visible(False)
 
         plt.savefig(f'{path}clustering_metrics.png')
         plt.close()
@@ -187,21 +196,38 @@ class ClusterIndex:
 
         if not self.with_label:
             return
-        # ARI, NMI, FMI
+        # ARI, NMI, FMI, Purity, Entropy
         ari = metrics.adjusted_rand_score(label, y)
         nmi = metrics.normalized_mutual_info_score(label, y)
         fmi = metrics.fowlkes_mallows_score(label, y)
 
-        # 純度とエントロピーを計算
-        purity = self._calculate_purity(label, y)
-        entropy_score = self._calculate_entropy(label, y)
+        # contingency matrix: rows=true labels, cols=pred clusters
+        cm = metrics.cluster.contingency_matrix(label, y)
+        n_total = cm.sum()
+        if n_total == 0:
+            purity = np.nan
+            entropy = np.nan
+        else:
+            purity = float(np.sum(np.max(cm, axis=0)) / n_total)
+
+            # weighted average entropy of true-label distribution in each predicted cluster
+            ent = 0.0
+            for j in range(cm.shape[1]):
+                n_j = cm[:, j].sum()
+                if n_j == 0:
+                    continue
+                p = cm[:, j] / n_j
+                p = p[p > 0]
+                ent_j = -float(np.sum(p * np.log2(p)))
+                ent += (n_j / n_total) * ent_j
+            entropy = float(ent)
 
         self.results_with_label[n_clusters] = {
             "ARI": ari,
             "NMI": nmi,
             "FMI": fmi,
             "purity": purity,
-            "entropy": entropy_score
+            "entropy": entropy,
         }
     
     def get_results(self, n_clusters):
@@ -222,7 +248,7 @@ class ClusterIndex:
             os.makedirs(
                 os.path.dirname(path), exist_ok=True
             )
-        _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI"], path, separate_plots)
+        _plot_scores(self.results_with_label, ["ARI", "NMI", "FMI", "purity", "entropy"], path, separate_plots)
 
     def plot(self, path="", separate_plots=False):
         path = str(path)

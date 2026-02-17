@@ -14,6 +14,7 @@ where:
     α: Regularization strength for label constraints
 """
 
+import gc
 import numpy as np
 import polars as pl
 import logging
@@ -97,7 +98,7 @@ def gower_distance_vectorized(
     
     Note:
         計算量: O(n² * f)
-        メモリ: O(n²)
+        メモリ: O(n²)  -- num_dist と cat_dist を1つの行列に統合
     """
     n = len(df)
     n_cat = len(categorical_cols)
@@ -107,42 +108,45 @@ def gower_distance_vectorized(
     if n_features == 0:
         raise ValueError("At least one feature column must be specified")
     
+    # 1つの距離行列にインプレースで加算してメモリ節約（旧: num_dist + cat_dist を別々に確保）
+    distance = np.zeros((n, n))
+    
     # 数値変数の距離計算
-    num_dist = np.zeros((n, n))
-    if len(numerical_cols) > 0:
+    if n_num > 0:
         num_data = df.select(numerical_cols).to_numpy()
         ranges = np.ptp(num_data, axis=0)  # max - min
         ranges[ranges == 0] = 1  # ゼロ除算回避
         
-        # ブロードキャスト: (n,1,f) - (1,n,f) → (n,n,f)
-        for k in range(len(numerical_cols)):
-            num_dist += np.abs(
+        # 列ごとにインプレース加算（n×n の一時配列を1つずつ再利用）
+        for k in range(n_num):
+            distance += np.abs(
                 num_data[:, None, k] - num_data[None, :, k]
-            ) / ranges[k]
-        num_dist *= numerical_weight
+            ) / ranges[k] * numerical_weight
+        del num_data, ranges
     
     # カテゴリ変数の距離計算
-    cat_dist = np.zeros((n, n))
-    if len(categorical_cols) > 0:
+    if n_cat > 0:
         cat_data = df.select(categorical_cols).to_numpy()
         
-        # ブロードキャスト: (n,1,f) != (1,n,f) → (n,n,f)
-        for k in range(len(categorical_cols)):
-            cat_dist += (cat_data[:, None, k] != cat_data[None, :, k]).astype(float)
-        cat_dist *= categorical_weight
+        # 列ごとにインプレース加算
+        for k in range(n_cat):
+            distance += (cat_data[:, None, k] != cat_data[None, :, k]).astype(float) * categorical_weight
+        del cat_data
     
     # 重み付き正規化
     total_weight = n_cat * categorical_weight + n_num * numerical_weight
     if total_weight == 0:
         raise ValueError("Total weight must be greater than 0")
     
-    return (num_dist + cat_dist) / total_weight
+    distance /= total_weight  # インプレース除算
+    return distance
 
 
 def gower_to_kernel(
     distance_matrix: np.ndarray,
     method: str = 'linear',
     sigma: Optional[float] = None,
+    inplace: bool = False,
 ) -> np.ndarray:
     """距離行列をカーネル行列に変換
     
@@ -150,11 +154,16 @@ def gower_to_kernel(
         distance_matrix: Gower距離行列 (n×n)
         method: カーネル方法 ('linear', 'rbf', 'exponential')
         sigma: カーネル幅（RBF/Exponential用）。Noneの場合は自動設定
+        inplace: Trueの場合、distance_matrix を直接書き換えて新規 n×n 行列の確保を回避
     
     Returns:
         カーネル行列 (n×n)
     """
     if method == 'linear':
+        if inplace:
+            np.negative(distance_matrix, out=distance_matrix)
+            distance_matrix += 1.0
+            return distance_matrix
         return 1 - distance_matrix
     
     elif method == 'rbf':
@@ -166,6 +175,11 @@ def gower_to_kernel(
             else:
                 sigma = 0.5
         
+        if inplace:
+            np.square(distance_matrix, out=distance_matrix)
+            distance_matrix /= -(2 * sigma ** 2)
+            np.exp(distance_matrix, out=distance_matrix)
+            return distance_matrix
         return np.exp(-(distance_matrix ** 2) / (2 * sigma ** 2))
     
     elif method == 'exponential':
@@ -177,6 +191,10 @@ def gower_to_kernel(
             else:
                 sigma = 0.5
         
+        if inplace:
+            distance_matrix /= -sigma
+            np.exp(distance_matrix, out=distance_matrix)
+            return distance_matrix
         return np.exp(-distance_matrix / sigma)
     
     else:
@@ -305,8 +323,6 @@ class SSKNMF:
         max_iter = self.config.max_iter
         
         for iteration in range(1, max_iter + 1):
-            H_old = self.H_.copy()
-            
             # Hの更新（反復回数を渡す）
             self._update_H(K, H_constraint, unlabeled_mask, labeled_indices, iteration, max_iter)
             
@@ -477,7 +493,10 @@ class SSKNMF:
         H_constraint: Optional[np.ndarray],
         labeled_indices: Optional[np.ndarray],
     ) -> float:
-        """再構成誤差の計算
+        """再構成誤差の計算（trace trick による n×n 行列生成の回避）
+        
+        ||K - H^TH||²_F を以下の等式で k×k 規模の行列のみで計算:
+            = ||K||²_F - 2 * trace(H K H^T) + ||HH^T||²_F
         
         Args:
             K: カーネル行列
@@ -489,9 +508,16 @@ class SSKNMF:
         """
         assert self.H_ is not None, "H must be initialized"
         
-        # 再構成誤差: ||K - HH^T||²_F
-        recon = self.H_.T @ self.H_  # (n×n)
-        recon_error = np.linalg.norm(K - recon, 'fro') ** 2
+        # trace trick: ||K - H^TH||²_F = ||K||²_F - 2*trace(HKH^T) + ||HH^T||²_F
+        # 全て k×k または k×n の行列計算で済み、n×n の新規配列を作らない
+        K_norm_sq = np.sum(K * K)              # O(n²) だが新規配列なし（K は既存）
+        P = self.H_ @ K                        # (k×n)
+        cross_term = 2.0 * np.sum(P * self.H_) # O(k*n) — trace(H K H^T) = sum(P ⊙ H)
+        del P
+        G = self.H_ @ self.H_.T               # (k×k)
+        G_norm_sq = np.sum(G * G)              # O(k²) — ||HH^T||²_F = trace(G²)
+        del G
+        recon_error = float(K_norm_sq - cross_term + G_norm_sq)
         
         # ラベル制約項: α||H_labeled - H_constraint||²_F
         if H_constraint is not None and labeled_indices is not None:
@@ -551,9 +577,12 @@ class GowerSSKNMF:
         self.df_original, self.metadata = load_dataset(
             dataset_name=self.config.dataset_name,
             debug=self.config.debug,
-            base_path=self.config.base_path
+            base_path=self.config.base_path,
+            convert_labels=self.config.convert_labels,
+            config={"exclude_labels": self.config.exclude_labels or []},
         )
         self.all_labels = self.df_original["Label"].unique().to_list()
+        self._all_columns = self.df_original.columns  # df_original 解放後にも参照可能なように退避
         self.use_labels = None
         self.known_labels = None
         self.use_known_no_labeled = False
@@ -561,6 +590,7 @@ class GowerSSKNMF:
         self.categorical_cols = None
 
         self.df_setup = None
+        self.labels_series = None  # convert_to_kernel() で Label 列を退避
         self.labeled_indices = None
         self.labels = None
         self.kernel = None
@@ -700,10 +730,12 @@ class GowerSSKNMF:
         return df_combined, labeled_indices, labels
     
     def get_labels(self) -> List[str]:
-        return self.df_original["Label"].unique().to_list()
+        # df_original 解放後でも呼べるように all_labels を使用
+        return list(self.all_labels)
     
     def get_columns(self) -> List[str]:
-        return self.df_original.columns.to_list()
+        # df_original 解放後でも呼べるように退避済みリストを使用
+        return list(self._all_columns)
     
     def set_labels(self, use_labels: List[str], known_labels: List[str], use_known_no_labeled: bool = False):
         self.use_labels = use_labels
@@ -711,6 +743,12 @@ class GowerSSKNMF:
         self.use_known_no_labeled = use_known_no_labeled
         
         self.df_setup, self.labeled_indices, self.labels = self._setup()
+        
+        # _setup() 完了後、df_original はもう不要なので即座に解放してメモリ節約
+        del self.df_original
+        self.df_original = None
+        gc.collect()
+        logger.info("df_original を解放しました")
 
     def set_cols(self, categorical_columns: List[str]):
         self.categorical_cols = categorical_columns
@@ -745,6 +783,14 @@ class GowerSSKNMF:
         ]
 
         df_for_gower = self.df_setup.drop(cols_to_drop)
+        
+        # df_setup から Label 列だけ退避し、残りの列は不要なので解放してメモリ節約
+        self.labels_series = self.df_setup["Label"]
+        del self.df_setup
+        self.df_setup = None
+        gc.collect()
+        logger.info("df_setup を解放しました（Label列は labels_series として保持）")
+        
         # 正規化するのは categorical_columns 以外（数値列のみ）
         if self.normalize_numerical in ("minmax", "standard") and numerical_cols:
             df_for_gower = normalize_numerical_columns(
@@ -754,6 +800,7 @@ class GowerSSKNMF:
             )
             logger.info(f"数値列のみ正規化しました（categorical 除く）: method={self.normalize_numerical}")
 
+        # Gower距離 → カーネル変換（inplace=True で distance_matrix を直接書き換え、n×n 分のメモリ節約）
         distance_matrix = gower_distance_vectorized(
             df_for_gower,
             self.categorical_cols,
@@ -761,11 +808,14 @@ class GowerSSKNMF:
             categorical_weight=self.categorical_weight,
             numerical_weight=self.numerical_weight
         )
+        del df_for_gower
+        gc.collect()
 
         kernel_matrix = gower_to_kernel(
             distance_matrix,
             method=kernel_method,
             sigma=kernel_sigma,
+            inplace=True,
         )
         assert np.all(kernel_matrix >= 0) and np.all(kernel_matrix <= 1)
 

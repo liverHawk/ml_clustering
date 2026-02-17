@@ -1,3 +1,5 @@
+import csv
+import gc
 import polars as pl
 from typing import Literal, List
 from sklearn.datasets import make_blobs
@@ -128,13 +130,43 @@ def normalize(df: pl.DataFrame, except_original_columns: List[str], method: Norm
     return df
 
 
+def _get_schema_from_header_only(file):
+    """メモリをほとんど使わずヘッダーからスキーマを構築（Polars が OOM になる場合のフォールバック）"""
+    with open(file, newline="", encoding="utf-8", errors="replace") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+    return {col: pl.Utf8 for col in header}
+
+
 def get_schema(files):
     unified_schema = {}
+    header_only_mode = False
     for file in files:
-        # logger.info(f"Getting schema for {file}")
-        current_schema = pl.read_csv(file, n_rows=0, schema_overrides={ "SimillarHTTP": pl.Utf8 }).schema
+        if header_only_mode:
+            current_schema = _get_schema_from_header_only(file)
+        else:
+            try:
+                current_schema = pl.read_csv(
+                    file, n_rows=0, schema_overrides={"SimillarHTTP": pl.Utf8}
+                ).schema
+            except OSError as e:
+                # メモリ不足 (errno 12) などで失敗したら、残りは Polars を使わずヘッダーのみで取得
+                logger.warning(
+                    "get_schema: pl.read_csv でエラーのためヘッダーのみ使用 (%s): %s",
+                    type(e).__name__,
+                    file,
+                )
+                current_schema = _get_schema_from_header_only(file)
+                header_only_mode = True
+            except Exception as e:
+                logger.warning(
+                    "get_schema: pl.read_csv でエラーのためヘッダーのみ使用 (%s): %s",
+                    type(e).__name__,
+                    file,
+                )
+                current_schema = _get_schema_from_header_only(file)
         for col, dtype in current_schema.items():
-            if col =="SimillarHTTP":
+            if col == "SimillarHTTP":
                 unified_schema[col] = pl.Utf8
                 continue
             if col not in unified_schema:
@@ -143,5 +175,6 @@ def get_schema(files):
                 if unified_schema[col] != dtype:
                     if dtype.is_float() or unified_schema[col].is_float():
                         unified_schema[col] = pl.Float64
-
+        del current_schema
+        gc.collect()
     return unified_schema

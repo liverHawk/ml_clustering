@@ -1,3 +1,4 @@
+import gc
 from polars.lazyframe import LazyFrame
 import polars as pl
 import logging
@@ -14,20 +15,32 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False, base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned", relabel: bool = True):
+def load_dataset(
+    dataset_name: str = "CICIDS2017_improved",
+    debug: bool = False,
+    base_path: str = "/home/hawk/Documents/school/dataset/project/cleaned",
+    convert_labels: bool = True,
+    config: dict | None = None,
+):
     path = Path(f"{base_path}") / dataset_name
     files = list(path.glob("*.csv"))
     if len(files) == 0:
         raise FileNotFoundError(f"No files found in {path}")
     schema = get_schema(files)
-    # 遅延評価でメモリ効率を向上（スキーマを事前に指定して型推論を回避）
-    dfs: list[LazyFrame] = [pl.scan_csv(file, schema_overrides=schema) for file in files]
-    df = pl.concat(dfs).collect()
-
+    gc.collect()
     delete_columns = ["Src IP", "Dst IP", "Timestamp", "Source IP", "Destination IP", "SimillarHTTP"]
-    delete_columns = [col for col in delete_columns if col in df.columns]
-
-    df: pl.DataFrame = df.drop(delete_columns)
+    keep_columns = [c for c in schema if c not in delete_columns]
+    # 遅延評価＋不要列を読まないでメモリ節約（スキーマ指定で型推論も回避）
+    dfs: list[LazyFrame] = [
+        pl.scan_csv(file, schema_overrides=schema).select(keep_columns)
+        for file in files
+    ]
+    del schema
+    del files
+    gc.collect()
+    df = pl.concat(dfs).collect(engine="streaming")
+    del dfs
+    gc.collect()
 
     if debug:
         for col in df.columns:
@@ -36,7 +49,13 @@ def load_dataset(dataset_name: str = "CICIDS2017_improved", debug: bool = False,
         value_counts.write_csv("./results/csv/value_counts.csv")
 
     if dataset_name in ["CICIDS2017_improved", "CICIDS2017_flow_improved", "CSECICIDS2018_improved"]:
-        df = cicids2017.relabeled_dataset(df, relabel=relabel)
+        df = cicids2017.relabeled_dataset(df, convert_labels=convert_labels)
+        config = config or {}
+        exclude_labels = config.get("exclude_labels")
+        if exclude_labels:
+            df = df.filter(~pl.col("Label").is_in(exclude_labels))
+        config["use_labels"] = df["Label"].unique().to_list()
+
     elif dataset_name in ["CICDDoS2019"]:
         # df = cicddos2019.relabeled_dataset(df)
         pass
@@ -104,6 +123,11 @@ class DataLoader:
             self.config.n_samples,
             self.config.seed
         )
+        
+        # サンプリング完了後、df_raw はもう不要なので即座に解放してメモリ節約
+        del self.df_raw
+        self.df_raw = None
+        gc.collect()
         
         # メタデータの更新
         metadata["n_samples"] = len(self.df_sampled)

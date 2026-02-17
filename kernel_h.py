@@ -1,3 +1,10 @@
+import resource
+# プロセス仮想メモリ上限（バイト）。メモリ不足で "memory allocation failed" が出る場合は
+# 上限を緩めて OS の実メモリ/スワップに任せるほうが安全。
+memory_limit = resource.RLIM_INFINITY
+resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
+
+import gc
 import comet_ml
 import sys
 from pathlib import Path
@@ -7,8 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from clustering_methods.configs import GowerSSKNMFConfig
 from clustering_methods import GowerSSKNMF
 from lib.cluster_index import ClusterIndex
-from dataset.utils import load_dataset
-from lib.experiment_db import ClusterResult, Experiment, get_session
+from lib.experiment_db import ClusterResult, ClusterSummary, Experiment, get_session
 
 import yaml
 import argparse
@@ -76,6 +82,12 @@ def load_params():
             params["known_labels"] = [params["known_labels"]]
         elif not isinstance(params["known_labels"], list):
             params["known_labels"] = list(params["known_labels"])
+    
+    if "exclude_labels" in params:
+        if isinstance(params["known_labels"], str):
+            params["exclude_labels"] = [params["exclude_labels"]]
+        elif not isinstance(params["exclude_labels"], list):
+            params["exclude_labels"] = list(params["exclude_labels"])
     
     if "use_labels" in params:
         if isinstance(params["use_labels"], str):
@@ -165,21 +177,26 @@ def main():
     params = load_params()
     base_path = params["base_path"]
 
-    df_original, metadata = load_dataset(params["dataset"], debug=False, base_path=base_path, relabel=params["relabel"])
+    config = GowerSSKNMFConfig(
+        base_path=base_path,
+        dataset_name=params["dataset"],
+        n_samples_per_label=params["n_samples_per_label"],
+        labeled_rate=params["labeled_rate"],
+        random_state=params["random_state"],
+        convert_labels=params.get("convert_labels", True),
+        exclude_labels=params.get("exclude_labels"),
+    )
+    model = GowerSSKNMF(config)
+    logger.info(model.get_labels())
 
-    if params["exclude_labels"] and len(params["exclude_labels"]) > 0:
-        df_original = df_original.filter(~pl.col("Label").is_in(params["exclude_labels"]))
+    # use_labels が空ならモデルの全ラベルで補完
+    if not params["use_labels"]:
+        params["use_labels"] = model.get_labels()
 
-    n_clusters = df_original["Label"].n_unique()
-    all_labels = df_original["Label"].unique().to_list()
-    with open(f"dataset_metadata/{params['dataset']}_label.txt", "w") as f:
-        for label in all_labels:
-            f.write(f"{label}\n")
-
-
-    center_n_clusters = len(params["use_labels"])  # = len(use_labels)
+    n_clusters_true = len(model.get_labels())
+    center_n_clusters = len(params["use_labels"])
     if center_n_clusters == 0:
-        center_n_clusters = n_clusters
+        center_n_clusters = n_clusters_true
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
 
@@ -189,15 +206,6 @@ def main():
         "n_clusters_range": list(range(start, end))
     })
 
-    config = GowerSSKNMFConfig(
-        base_path=base_path,
-        dataset_name=params["dataset"],
-        n_samples_per_label=params["n_samples_per_label"],
-        labeled_rate=params["labeled_rate"],
-        random_state=params["random_state"]
-    )
-    model = GowerSSKNMF(config)
-    logger.info(model.get_labels())
     model.set_labels(
         use_labels=params["use_labels"],
         known_labels=params["known_labels"],
@@ -263,6 +271,12 @@ def main():
         session.add(experiment)
         session.flush()  # experiment.id を取得する
 
+        # labels_array をループ外で1回だけ取得（毎回 Series→numpy 変換するのを回避）
+        # convert_to_kernel() 後、df_setup は解放済みなので labels_series を使用
+        labels_array = np.asarray(model.labels_series.to_numpy())
+        # ループ不変の既知クラスタID
+        known_cluster_ids = list(range(len(params["known_labels"])))
+
         for n_clusters in range(start, end):
             logger.info(f"n_clusters: {n_clusters}")
             predictions, membership = model.predict(
@@ -277,39 +291,36 @@ def main():
                 alpha_init=alpha_init,
                 alpha_final=alpha_final
             )
+            del membership  # 使用後すぐに解放
+            gc.collect()
 
-            # logger.info(predictions)
-            # logger.info(membership)
+            pred_arr = np.asarray(predictions)
+            mask = ~np.isin(pred_arr, known_cluster_ids)
+            n_total, n_eval = len(pred_arr), int(mask.sum())
 
-            evaluation = pl.DataFrame({
-                "kernel": model.kernel,
-                "predictions": predictions,
-                "true_labels": model.df_setup["Label"].to_list(),
-            })
-
-            # _plot_confusion_matrix(evaluation, save_path, n_clusters)
-
-            # 既知ラベルが固定されたクラスタIDを取得（0からlen(known_labels)-1まで）
-            known_cluster_ids = list(range(len(params["known_labels"])))
-            
-            # 既知ラベルが固定されたクラスタに割り当てられたデータを除外
-            evaluation_filtered = evaluation.filter(
-                ~pl.col("predictions").is_in(known_cluster_ids)
-            )
-            
             logger.info(
                 f"既知ラベル固定クラスタ ({known_cluster_ids}) のデータを除外: "
-                f"全データ数={len(evaluation)}, 評価対象データ数={len(evaluation_filtered)}"
+                f"全データ数={n_total}, 評価対象データ数={n_eval}"
             )
-            
-            # 除外後のデータで評価指標を計算
-            if len(evaluation_filtered) > 0:
+
+            # 評価用に巨大 DataFrame を組まず、必要な行だけスライスしてメモリ節約
+            if n_eval > 0:
+                kernel_filtered = model.kernel[mask]
+                label_filtered = labels_array[mask]
+                pred_filtered = pred_arr[mask]
                 score.add(
                     n_clusters,
-                    evaluation_filtered["kernel"].to_numpy(),
-                    evaluation_filtered["predictions"].to_numpy(),
-                    evaluation_filtered["true_labels"].to_numpy(),
+                    kernel_filtered,
+                    pred_filtered,
+                    label_filtered,
                 )
+                # 混同行列は全データ（全 true label を表示するため）で描画して保存
+                true_and_predictions_full = pl.DataFrame({
+                    "true_labels": labels_array,
+                    "predictions": pred_arr,
+                })
+                _plot_confusion_matrix(true_and_predictions_full, save_path, n_clusters)
+                del kernel_filtered, label_filtered
 
                 metrics = score.get_results(n_clusters)
                 exp.log_metrics(metrics, step=n_clusters)
@@ -332,6 +343,50 @@ def main():
                     f"n_clusters={n_clusters}: 評価対象データが0件のため、評価指標をスキップします"
                 )
 
+        # ================== クラスタ数推定の要約 ==================
+        # ARI を主指標として K_hat を選択し、|K_hat - K_true| と
+        # そのときの ARI/NMI を保存する
+        best_k = None
+        best_ari = None
+        best_nmi = None
+
+        if hasattr(score, "results_with_label"):
+            for k, m in score.results_with_label.items():
+                ari = m.get("ARI")
+                nmi = m.get("NMI")
+                if ari is None or np.isnan(ari):
+                    continue
+                if best_ari is None or ari > best_ari:
+                    best_ari = float(ari)
+                    best_nmi = float(nmi) if nmi is not None and not np.isnan(nmi) else None
+                    best_k = int(k)
+
+        if best_k is not None and best_ari is not None:
+            k_true = int(n_clusters_true)
+            k_error_abs = abs(best_k - k_true)
+
+            # Comet へのログ
+            exp.log_metrics(
+                {
+                    "n_clusters_true": k_true,
+                    "n_clusters_hat_ari": best_k,
+                    "n_clusters_error_abs": k_error_abs,
+                    "ari_at_hat": best_ari,
+                    "nmi_at_hat": best_nmi,
+                }
+            )
+
+            # DB への保存
+            summary = ClusterSummary(
+                experiment_id=experiment.id,
+                n_clusters_true=k_true,
+                n_clusters_hat_ari=best_k,
+                n_clusters_error_abs=k_error_abs,
+                ari_at_hat=best_ari,
+                nmi_at_hat=best_nmi,
+            )
+            session.add(summary)
+
         session.commit()
     finally:
         session.close()
@@ -343,8 +398,8 @@ def main():
     # score.save_data(
     #     path=save_path
     # )
-    # for file in save_path.glob("*.png"):
-    #     exp.log_image(file)
+    for file in save_path.glob("*.png"):
+        exp.log_image(file)
 
 
 if __name__ == "__main__":
