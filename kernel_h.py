@@ -187,17 +187,27 @@ def main():
         exclude_labels=params.get("exclude_labels"),
     )
     model = GowerSSKNMF(config)
-    logger.info(model.get_labels())
+    labels_after_exclude = model.get_labels()
+    logger.info(f"labels_after_exclude: {labels_after_exclude}")
 
-    # use_labels が空ならモデルの全ラベルで補完
+    # use_labels が空なら、exclude_labels 適用後の全ラベルで補完
     if not params["use_labels"]:
-        params["use_labels"] = model.get_labels()
+        params["use_labels"] = labels_after_exclude
 
-    # exclude_labels を反映したラベル数（=有効ラベル数）を中心に n_clusters を決める
-    n_clusters_true = len(model.get_labels())
+    # exclude_labels を適用したあとのラベル数を「真のクラスタ数」として扱う
+    n_clusters_true = len(labels_after_exclude)
     center_n_clusters = n_clusters_true
+
     start = max(center_n_clusters - 4, len(params["known_labels"]) + 1, 1)
     end = center_n_clusters + 5
+
+    logger.info(
+        f"n_clusters_true(after_exclude)={n_clusters_true}, "
+        f"center_n_clusters={center_n_clusters}, "
+        f"n_clusters_range=[{start}, {end - 1}], "
+        f"known_labels={params['known_labels']}, "
+        f"exclude_labels={params.get('exclude_labels', [])}"
+    )
 
     exp.add_tags(params["tags"] + ["constraint_method"])
     exp.log_parameters({
