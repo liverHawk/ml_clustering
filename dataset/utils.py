@@ -58,7 +58,11 @@ def load_dataset(
 
     elif dataset_name in ["CICDDoS2019"]:
         # df = cicddos2019.relabeled_dataset(df)
-        pass
+        config = config or {}
+        exclude_labels = config.get("exclude_labels")
+        if exclude_labels:
+            df = df.filter(~pl.col("Label").is_in(exclude_labels))
+        config["use_labels"] = df["Label"].unique().to_list()
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 
